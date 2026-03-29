@@ -1,0 +1,489 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.wrap{background:#0a0a0a;padding:20px 16px;border-radius:20px;}
+.stage{background:#111;border-radius:16px;padding:20px 18px 16px;margin-bottom:20px;}
+.stage-label{font-size:10px;letter-spacing:.12em;color:#444;font-weight:600;margin-bottom:16px;}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;}
+.phone{width:188px;flex-shrink:0;background:#161616;border-radius:34px;border:2px solid #252525;overflow:hidden;display:flex;flex-direction:column;height:418px;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:20px;background:#161616;border-radius:0 0 12px 12px;z-index:10;}
+.sbar{display:flex;justify-content:space-between;padding:10px 16px 4px;flex-shrink:0;}
+.sbar span{font-size:10px;color:#555;font-weight:500;}
+.content{flex:1;overflow:hidden;padding:8px 14px 0;}
+.tbar{display:flex;border-top:1px solid #1f1f1f;padding:7px 0 10px;flex-shrink:0;}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ti-ico{font-size:15px;line-height:1;}
+.ti-lbl{font-size:8px;}
+.act .ti-ico,.act .ti-lbl{color:#d4f53c;}
+.inact .ti-ico,.inact .ti-lbl{color:#383838;}
+.lbl{font-size:10px;color:#3a3a3a;text-align:center;margin-top:8px;letter-spacing:.04em;}
+
+/* typo */
+.h1{font-size:22px;font-weight:800;color:#fff;line-height:1.15;margin-bottom:4px;}
+.h2{font-size:18px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:4px;}
+.sub{font-size:11px;color:#555;margin-bottom:12px;}
+.eyebrow{font-size:9px;color:#555;letter-spacing:.09em;font-weight:600;margin-bottom:8px;}
+
+/* inputs */
+.inp{background:#1e1e1e;border-radius:9px;padding:9px 11px;font-size:11px;color:#555;margin-bottom:7px;}
+.row2{display:flex;gap:6px;}
+.row2 .inp{flex:1;margin-bottom:0;}
+
+/* buttons */
+.btn-y{background:#d4f53c;border-radius:11px;padding:11px;text-align:center;font-size:12px;font-weight:800;color:#0a0a0a;margin-bottom:6px;}
+.btn-g{background:transparent;border:1px solid #252525;border-radius:11px;padding:10px;text-align:center;font-size:11px;color:#555;margin-bottom:6px;}
+.btn-d{background:#1e1e1e;border-radius:11px;padding:10px;text-align:center;font-size:11px;color:#666;margin-bottom:6px;}
+.link{font-size:10px;color:#4a7ef0;text-align:center;margin-top:4px;}
+.link-r{font-size:10px;color:#4a7ef0;text-align:right;margin-bottom:10px;}
+
+/* hero banner */
+.hero{background:#d4f53c;border-radius:14px;padding:14px 14px 12px;margin-bottom:12px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-24px;top:-24px;width:88px;height:88px;border-radius:50%;background:rgba(0,0,0,.07);}
+.h-eye{font-size:9px;color:rgba(0,0,0,.5);letter-spacing:.08em;font-weight:600;margin-bottom:3px;}
+.h-title{font-size:16px;font-weight:800;color:#0a0a0a;line-height:1.2;}
+.h-sub{font-size:10px;color:#333;margin-top:3px;}
+
+/* chips */
+.chips{display:flex;gap:5px;margin-bottom:12px;}
+.chip{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
+.chip-on{background:#d4f53c;color:#0a0a0a;}
+.chip-off{background:#1e1e1e;color:#555;}
+
+/* event card */
+.ecard{background:#1e1e1e;border-radius:12px;overflow:hidden;margin-bottom:8px;}
+.ecard-img{height:60px;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.trek-img{background:#141e14;color:#2d4a2d;}
+.din-img{background:#1e160e;color:#4a3a1e;}
+.ecard-body{padding:10px 12px 10px;}
+.tag{display:inline-block;padding:2px 7px;border-radius:20px;font-size:8px;font-weight:600;margin-bottom:5px;}
+.tag-g{background:#0f2a0f;color:#4aaa3a;}
+.tag-a{background:#2a1e08;color:#cc8820;}
+.tag-b{background:#0f1e2a;color:#4a7acc;}
+.ename{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;}
+.emeta{font-size:9px;color:#555;}
+.efooter{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+.eprice{font-size:15px;font-weight:800;color:#d4f53c;}
+.espots{font-size:9px;color:#444;}
+
+/* detail */
+.det-cover{height:100px;display:flex;align-items:flex-end;padding:10px 14px;flex-shrink:0;}
+.det-cover.trek{background:linear-gradient(160deg,#0e1a0e,#1a2e14);}
+.dbadge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:600;margin-right:4px;}
+.dbadge-g{background:rgba(74,170,58,.2);color:#4aaa3a;}
+.dbadge-b{background:rgba(74,122,204,.2);color:#4a7acc;}
+.stat-row{display:flex;gap:6px;padding:10px 14px 0;}
+.sbox{flex:1;background:#1e1e1e;border-radius:8px;padding:8px 6px;text-align:center;}
+.snum{font-size:15px;font-weight:800;color:#fff;}
+.snum-g{color:#4aaa3a;}
+.slbl{font-size:8px;color:#444;margin-top:1px;}
+.join-btn{margin:10px 14px 10px;background:#d4f53c;border-radius:11px;padding:12px;text-align:center;font-size:12px;font-weight:800;color:#0a0a0a;}
+.desc{font-size:10px;color:#555;line-height:1.6;padding:8px 14px 0;}
+.avatars{display:flex;padding:6px 14px 0;}
+.av{width:24px;height:24px;border-radius:50%;border:2px solid #161616;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-right:-6px;}
+.more-av{font-size:9px;color:#555;align-self:center;margin-left:10px;}
+
+/* calendar */
+.cal-hdr{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px;}
+.cal-sub{font-size:11px;color:#555;margin-bottom:12px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.cd-hdr{font-size:9px;color:#444;text-align:center;padding-bottom:5px;}
+.cd{font-size:10px;color:#666;text-align:center;padding:3px 0;position:relative;}
+.cd-today{background:#d4f53c;color:#0a0a0a;font-weight:800;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;margin:auto;}
+.cd-dot{width:3px;height:3px;border-radius:50%;background:#4a7acc;margin:1px auto 0;}
+.ev-row{display:flex;justify-content:space-between;padding:7px 9px;background:#1e1e1e;border-radius:7px;margin-bottom:5px;}
+.ev-d{font-size:10px;color:#4a7ef0;font-weight:600;}
+.ev-n{font-size:10px;color:#555;}
+.divider{height:1px;background:#1e1e1e;margin:10px 0;}
+
+/* checkout */
+.obox{background:#1e1e1e;border-radius:11px;padding:11px 13px;margin-bottom:11px;}
+.orow{display:flex;justify-content:space-between;margin-bottom:3px;}
+.ok{font-size:10px;color:#555;}
+.ov{font-size:10px;color:#888;}
+.otk{font-size:13px;font-weight:700;color:#fff;}
+.otv{font-size:15px;font-weight:800;color:#d4f53c;}
+.sec-note{font-size:9px;color:#333;text-align:center;margin-top:4px;}
+
+/* confirm */
+.ok-circle{width:48px;height:48px;border-radius:50%;background:rgba(74,170,58,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 10px;}
+
+/* my events */
+.up-item{display:flex;gap:8px;align-items:center;background:#1e1e1e;border-radius:11px;padding:9px 10px;margin-bottom:6px;}
+.dblock{width:30px;height:30px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.dblock-b{background:rgba(74,122,204,.18);}
+.dblock-a{background:rgba(204,136,32,.18);}
+.d-num{font-size:12px;font-weight:800;color:#fff;line-height:1;}
+.d-mon{font-size:7px;font-weight:600;color:#555;}
+.it{font-size:11px;font-weight:700;color:#fff;}
+.is{font-size:9px;color:#444;}
+.jpill{margin-left:auto;padding:2px 7px;background:rgba(74,170,58,.15);border-radius:20px;font-size:8px;color:#4aaa3a;font-weight:600;}
+.past-row{display:flex;justify-content:space-between;padding:7px 9px;background:#181818;border-radius:7px;margin-bottom:4px;}
+.pd{font-size:10px;color:#333;font-weight:500;}
+.pn{font-size:10px;color:#333;}
+
+/* profile */
+.prof-head{display:flex;flex-direction:column;align-items:center;padding:14px 14px 10px;text-align:center;}
+.av-ring{width:50px;height:50px;border-radius:50%;background:#d4f53c;color:#0a0a0a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;margin-bottom:8px;}
+.pname{font-size:14px;font-weight:800;color:#fff;}
+.psince{font-size:9px;color:#444;margin-top:2px;}
+.trio{display:flex;gap:5px;padding:0 14px 10px;}
+.tbox{flex:1;background:#1e1e1e;border-radius:9px;padding:8px 4px;text-align:center;}
+.tn{font-size:14px;font-weight:800;color:#fff;}
+.tl{font-size:8px;color:#444;margin-top:1px;}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #1a1a1a;font-size:11px;color:#888;}
+.marr{color:#2a2a2a;}
+.mrow-red{color:#c0392b;}
+</style>
+
+<div class="wrap">
+
+<div class="stage">
+  <div class="stage-label">ONBOARDING</div>
+  <div class="row">
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="display:flex;flex-direction:column;justify-content:center;">
+          <div style="margin-bottom:28px;">
+            <div style="width:44px;height:44px;background:#d4f53c;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#0a0a0a;margin-bottom:14px;">C</div>
+            <div class="h1">Community<br>Hub</div>
+            <div style="font-size:11px;color:#444;margin-top:4px;">Trekking &amp; Social Events</div>
+          </div>
+          <div class="btn-y">Get Started</div>
+          <div class="btn-g">Log In</div>
+          <div style="font-size:9px;color:#2e2e2e;text-align:center;margin-top:6px;">By continuing you agree to our Terms</div>
+        </div>
+      </div>
+      <div class="lbl">Splash</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content">
+          <div class="h2">Create<br>account</div>
+          <div class="sub">Join the community</div>
+          <div class="inp">Full name</div>
+          <div class="inp">Email address</div>
+          <div class="inp">Password</div>
+          <div class="inp">Confirm password</div>
+          <div class="btn-y" style="margin-top:2px;">Create Account</div>
+          <div style="display:flex;align-items:center;gap:6px;margin:4px 0;">
+            <div style="flex:1;height:1px;background:#1e1e1e;"></div>
+            <span style="font-size:9px;color:#2e2e2e;">or</span>
+            <div style="flex:1;height:1px;background:#1e1e1e;"></div>
+          </div>
+          <div class="btn-g">Continue with Google</div>
+          <div class="link">Already have an account? Log in</div>
+        </div>
+      </div>
+      <div class="lbl">Sign Up</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="h2">Welcome<br>back</div>
+          <div class="sub">Log in to your account</div>
+          <div class="inp">Email address</div>
+          <div class="inp">Password</div>
+          <div class="link-r">Forgot password?</div>
+          <div class="btn-y">Log In</div>
+          <div style="display:flex;align-items:center;gap:6px;margin:4px 0;">
+            <div style="flex:1;height:1px;background:#1e1e1e;"></div>
+            <span style="font-size:9px;color:#2e2e2e;">or</span>
+            <div style="flex:1;height:1px;background:#1e1e1e;"></div>
+          </div>
+          <div class="btn-g">Continue with Google</div>
+          <div class="link">No account? Sign up</div>
+        </div>
+      </div>
+      <div class="lbl">Log In</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-label">DISCOVER & EVENTS</div>
+  <div class="row">
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar">
+          <span>9:41</span>
+          <span style="display:flex;align-items:center;gap:4px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#d4f53c;display:inline-block;"></span>
+            <span>●●●</span>
+          </span>
+        </div>
+        <div class="content" style="padding-top:4px;">
+          <div style="font-size:10px;color:#444;font-weight:500;margin-bottom:1px;">Good morning,</div>
+          <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:10px;">Alex</div>
+          <div class="hero">
+            <div class="h-eye">FEATURED EVENT</div>
+            <div class="h-title">Monte Rosa<br>Trek</div>
+            <div class="h-sub">Sat 12 Apr · 8 spots · <strong>€45</strong></div>
+          </div>
+          <div class="chips">
+            <div class="chip chip-on">All</div>
+            <div class="chip chip-off">Trekking</div>
+            <div class="chip chip-off">Dinner</div>
+            <div class="chip chip-off">Meetup</div>
+          </div>
+          <div class="ecard">
+            <div class="ecard-img din-img">evening scene</div>
+            <div class="ecard-body">
+              <div class="tag tag-a">Social</div>
+              <div class="ename">Community Dinner</div>
+              <div class="emeta">Fri 18 Apr · Milano Centro</div>
+              <div class="efooter">
+                <div class="eprice">€30</div>
+                <div class="espots">12 spots left</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tbar">
+          <div class="ti act"><div class="ti-ico">⌂</div><div class="ti-lbl">Home</div></div>
+          <div class="ti inact"><div class="ti-ico">◫</div><div class="ti-lbl">Calendar</div></div>
+          <div class="ti inact"><div class="ti-ico">♡</div><div class="ti-lbl">Events</div></div>
+          <div class="ti inact"><div class="ti-ico">◎</div><div class="ti-lbl">Profile</div></div>
+        </div>
+      </div>
+      <div class="lbl">Home</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar" style="position:absolute;width:100%;z-index:5;"><span style="color:#aaa;">9:41</span><span style="color:#aaa;">●●●</span></div>
+        <div class="det-cover trek">
+          <div>
+            <span class="dbadge dbadge-g">Trekking</span>
+            <span class="dbadge dbadge-b">Moderate</span>
+          </div>
+        </div>
+        <div style="flex:1;overflow:hidden;">
+          <div style="padding:12px 14px 0;">
+            <div style="font-size:17px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:3px;">Monte Rosa Trek</div>
+            <div style="font-size:10px;color:#444;">Sat 12 Apr 2025 · 07:00 · Valle d'Aosta</div>
+          </div>
+          <div class="stat-row">
+            <div class="sbox"><div class="snum">18</div><div class="slbl">joined</div></div>
+            <div class="sbox"><div class="snum">30</div><div class="slbl">max</div></div>
+            <div class="sbox"><div class="snum snum-g">8</div><div class="slbl">spots left</div></div>
+          </div>
+          <div class="desc">A scenic high-altitude trek along the Monte Rosa massif. Gear list provided on join.</div>
+          <div style="font-size:9px;color:#444;letter-spacing:.07em;padding:8px 14px 0;">PARTICIPANTS</div>
+          <div class="avatars">
+            <div class="av" style="background:#0f2a0f;color:#4aaa3a;">AL</div>
+            <div class="av" style="background:#0f1e2a;color:#4a7acc;">MR</div>
+            <div class="av" style="background:#2a1a08;color:#cc8820;">JK</div>
+            <div class="more-av">+15 more</div>
+          </div>
+        </div>
+        <div class="join-btn">Join Event — €45</div>
+        <div class="tbar">
+          <div class="ti inact"><div class="ti-ico">⌂</div><div class="ti-lbl">Home</div></div>
+          <div class="ti inact"><div class="ti-ico">◫</div><div class="ti-lbl">Calendar</div></div>
+          <div class="ti act"><div class="ti-ico">♡</div><div class="ti-lbl">Events</div></div>
+          <div class="ti inact"><div class="ti-ico">◎</div><div class="ti-lbl">Profile</div></div>
+        </div>
+      </div>
+      <div class="lbl">Event Detail</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="padding-top:4px;" id="cal-phone">
+          <div class="cal-hdr">Calendar</div>
+          <div class="cal-sub">April 2025</div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="divider"></div>
+          <div class="eyebrow" style="margin-bottom:6px;">THIS MONTH</div>
+          <div class="ev-row"><span class="ev-d">Apr 5</span><span class="ev-n">Sunrise hike</span></div>
+          <div class="ev-row"><span class="ev-d">Apr 12</span><span class="ev-n">Monte Rosa Trek</span></div>
+          <div class="ev-row"><span class="ev-d">Apr 18</span><span class="ev-n">Community dinner</span></div>
+        </div>
+        <div class="tbar">
+          <div class="ti inact"><div class="ti-ico">⌂</div><div class="ti-lbl">Home</div></div>
+          <div class="ti act"><div class="ti-ico">◫</div><div class="ti-lbl">Calendar</div></div>
+          <div class="ti inact"><div class="ti-ico">♡</div><div class="ti-lbl">Events</div></div>
+          <div class="ti inact"><div class="ti-ico">◎</div><div class="ti-lbl">Profile</div></div>
+        </div>
+      </div>
+      <div class="lbl">Calendar</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-label">CHECKOUT & PROFILE</div>
+  <div class="row">
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="padding-top:4px;">
+          <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:12px;">Checkout</div>
+          <div class="obox">
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px;">Monte Rosa Trek</div>
+            <div style="font-size:9px;color:#444;margin-bottom:8px;">Sat 12 Apr · 1 person</div>
+            <div class="divider"></div>
+            <div class="orow"><span class="ok">Subtotal</span><span class="ov">€45.00</span></div>
+            <div class="orow"><span class="ok">Booking fee</span><span class="ov">€0.00</span></div>
+            <div class="divider"></div>
+            <div class="orow"><span class="otk">Total</span><span class="otv">€45.00</span></div>
+          </div>
+          <div class="eyebrow" style="margin-bottom:7px;">PAYMENT</div>
+          <div class="inp">Card number</div>
+          <div class="row2">
+            <div class="inp">MM / YY</div>
+            <div class="inp">CVC</div>
+          </div>
+          <div class="btn-d" style="margin-top:6px;">Apple Pay / Google Pay</div>
+          <div class="btn-y">Pay €45 via Stripe</div>
+          <div class="sec-note">Secured by Stripe · 256-bit SSL</div>
+        </div>
+      </div>
+      <div class="lbl">Checkout</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+          <div class="ok-circle">✓</div>
+          <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:3px;">You're in!</div>
+          <div style="font-size:11px;color:#444;margin-bottom:16px;">Monte Rosa Trek · Sat 12 Apr</div>
+          <div class="obox" style="width:100%;text-align:left;">
+            <div style="font-size:9px;color:#444;margin-bottom:2px;">Confirmation</div>
+            <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;">EVT-20250412-0047</div>
+            <div class="divider"></div>
+            <div class="orow">
+              <span class="ok">Amount paid</span>
+              <span style="font-size:13px;font-weight:800;color:#4aaa3a;">€45.00</span>
+            </div>
+            <div style="font-size:9px;color:#333;margin-top:6px;">Receipt sent to your email</div>
+          </div>
+          <div class="btn-y" style="width:100%;margin-top:6px;">View Event Details</div>
+          <div class="btn-g" style="width:100%;">Back to Home</div>
+        </div>
+      </div>
+      <div class="lbl">Confirmation</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="content" style="padding-top:4px;">
+          <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:12px;">My Events</div>
+          <div class="eyebrow" style="margin-bottom:6px;">UPCOMING</div>
+          <div class="up-item">
+            <div class="dblock dblock-b"><div class="d-num">12</div><div class="d-mon">APR</div></div>
+            <div><div class="it">Monte Rosa Trek</div><div class="is">07:00 · Valle d'Aosta</div></div>
+            <div class="jpill">Joined</div>
+          </div>
+          <div class="up-item">
+            <div class="dblock dblock-a"><div class="d-num">18</div><div class="d-mon">APR</div></div>
+            <div><div class="it">Community Dinner</div><div class="is">20:00 · Milano</div></div>
+            <div class="jpill">Joined</div>
+          </div>
+          <div class="divider"></div>
+          <div class="eyebrow" style="margin-bottom:6px;">PAST</div>
+          <div class="past-row"><span class="pd">Mar 3</span><span class="pn">Lago di Como Hike</span></div>
+          <div class="past-row"><span class="pd">Feb 22</span><span class="pn">Spring Meetup</span></div>
+          <div class="past-row"><span class="pd">Jan 10</span><span class="pn">City Walk Milan</span></div>
+        </div>
+        <div class="tbar">
+          <div class="ti inact"><div class="ti-ico">⌂</div><div class="ti-lbl">Home</div></div>
+          <div class="ti inact"><div class="ti-ico">◫</div><div class="ti-lbl">Calendar</div></div>
+          <div class="ti act"><div class="ti-ico">♡</div><div class="ti-lbl">Events</div></div>
+          <div class="ti inact"><div class="ti-ico">◎</div><div class="ti-lbl">Profile</div></div>
+        </div>
+      </div>
+      <div class="lbl">My Events</div>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="sbar"><span>9:41</span><span>●●●</span></div>
+        <div class="prof-head">
+          <div class="av-ring">AL</div>
+          <div class="pname">Alex Lombardi</div>
+          <div class="psince">Member since Jan 2024</div>
+        </div>
+        <div class="trio">
+          <div class="tbox"><div class="tn">12</div><div class="tl">Events</div></div>
+          <div class="tbox"><div class="tn">4</div><div class="tl">Treks</div></div>
+          <div class="tbox"><div class="tn">8</div><div class="tl">Social</div></div>
+        </div>
+        <div style="flex:1;">
+          <div class="mrow"><span>Edit Profile</span><span class="marr">›</span></div>
+          <div class="mrow"><span>Notifications</span><span class="marr">›</span></div>
+          <div class="mrow"><span>Payment Methods</span><span class="marr">›</span></div>
+          <div class="mrow"><span>Help &amp; Support</span><span class="marr">›</span></div>
+          <div class="mrow mrow-red"><span>Log out</span></div>
+        </div>
+        <div class="tbar">
+          <div class="ti inact"><div class="ti-ico">⌂</div><div class="ti-lbl">Home</div></div>
+          <div class="ti inact"><div class="ti-ico">◫</div><div class="ti-lbl">Calendar</div></div>
+          <div class="ti inact"><div class="ti-ico">♡</div><div class="ti-lbl">Events</div></div>
+          <div class="ti act"><div class="ti-ico">◎</div><div class="ti-lbl">Profile</div></div>
+        </div>
+      </div>
+      <div class="lbl">Profile</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var grid = document.getElementById('cal-grid');
+  if(!grid) return;
+  var days = ['M','T','W','T','F','S','S'];
+  var dotDays = [5,12,18,25];
+  var today = 12;
+  days.forEach(function(d){
+    var el = document.createElement('div');
+    el.className = 'cd-hdr';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+  for(var n=1; n<=30; n++){
+    var cell = document.createElement('div');
+    cell.className = 'cd';
+    if(n === today){
+      var inner = document.createElement('div');
+      inner.className = 'cd-today';
+      inner.textContent = n;
+      cell.appendChild(inner);
+    } else {
+      cell.textContent = n;
+      if(dotDays.indexOf(n) !== -1){
+        var dot = document.createElement('div');
+        dot.className = 'cd-dot';
+        cell.appendChild(dot);
+      }
+    }
+    grid.appendChild(cell);
+  }
+})();
+</script>
