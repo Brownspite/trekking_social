@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_service.dart';
 import 'edit_profile_screen.dart';
+import 'notifications_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,6 +13,89 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _bio = '';
+  String _memberDate = '';
+  int _totalEvents = 0;
+  int _trekCount = 0;
+  int _socialCount = 0;
+  int _avatarId = 0;
+  bool _isLoading = true;
+
+  static const List<Map<String, dynamic>> avatarStyles = [
+    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null}, // default
+    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
+    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
+    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
+    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
+    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users').doc(user.uid).get();
+
+    if (!userDoc.exists || !mounted) return;
+    final data = userDoc.data()!;
+
+    final bio = (data['bio'] as String?) ?? '';
+    final avatarId = (data['avatarId'] as int?) ?? 0;
+    final createdAt = data['createdAt'] as Timestamp?;
+    final eventsJoined = List<String>.from(data['eventsJoined'] ?? []);
+
+    String memberDate;
+    if (createdAt != null) {
+      final dt = createdAt.toDate();
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      memberDate = '${months[dt.month - 1]} ${dt.year}';
+    } else {
+      memberDate = _getFallbackDate();
+    }
+
+    int trekCount = 0;
+    int socialCount = 0;
+
+    if (eventsJoined.isNotEmpty) {
+      final eventsSnap = await FirebaseFirestore.instance
+          .collection('events')
+          .where(FieldPath.documentId, whereIn: eventsJoined.take(10).toList())
+          .get();
+      for (final doc in eventsSnap.docs) {
+        final tag = (doc.data()['tag'] as String?) ?? '';
+        if (tag == 'Trekking') trekCount++;
+        else socialCount++;
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _bio = bio;
+        _memberDate = memberDate;
+        _totalEvents = eventsJoined.length;
+        _trekCount = trekCount;
+        _socialCount = socialCount;
+        _avatarId = avatarId;
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _getFallbackDate() {
+    final now = DateTime.now();
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${months[now.month - 1]} ${now.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -46,28 +131,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 76,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFFD4F53C), Color(0xFF8BC34A)],
+                          colors: avatarStyles[_avatarId]['colors'],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFD4F53C).withValues(alpha: 0.2),
+                            color: avatarStyles[_avatarId]['colors'][0].withValues(alpha: 0.2),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
                         ],
                       ),
                       child: Center(
-                        child: Text(
-                          initials,
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF0A0A0A),
-                          ),
-                        ),
+                        child: avatarStyles[_avatarId]['icon'] == null
+                            ? Text(
+                                initials,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF0A0A0A),
+                                ),
+                              )
+                            : Icon(
+                                avatarStyles[_avatarId]['icon'],
+                                size: 34,
+                                color: const Color(0xFF0A0A0A),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -88,8 +179,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    if (_bio.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        _bio,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.45),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
                     Text(
-                      'Member since ${_getMemberDate()}',
+                      'Member since ${_isLoading ? '...' : _memberDate}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white.withValues(alpha: 0.25),
@@ -105,11 +209,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  _buildStatBox('12', 'Events', Icons.event_rounded),
+                  _buildStatBox('${_isLoading ? '-' : _totalEvents}', 'Events', Icons.event_rounded),
                   const SizedBox(width: 10),
-                  _buildStatBox('4', 'Treks', Icons.terrain_rounded),
+                  _buildStatBox('${_isLoading ? '-' : _trekCount}', 'Treks', Icons.terrain_rounded),
                   const SizedBox(width: 10),
-                  _buildStatBox('8', 'Social', Icons.people_rounded),
+                  _buildStatBox('${_isLoading ? '-' : _socialCount}', 'Social', Icons.people_rounded),
                 ],
               ),
             ),
@@ -153,6 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             );
                             if (updated == true && mounted) {
+                              _loadUserData();
                               setState(() {});
                             }
                           },
@@ -162,15 +267,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Icons.notifications_none_rounded,
                           'Notifications',
                           subtitle: 'Push, email alerts',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsScreen(),
+                              ),
+                            );
+                          },
                         ),
-                        _divider(),
-                        _buildMenuItem(
-                          Icons.payment_rounded,
-                          'Payment Methods',
-                          subtitle: 'Cards, billing',
-                          onTap: () {},
-                        ),
+
                       ],
                     ),
                   ),
@@ -206,17 +312,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: [
                         _buildMenuItem(
-                          Icons.help_outline_rounded,
-                          'Help & Support',
-                          subtitle: 'FAQ, contact us',
-                          onTap: () {},
-                        ),
-                        _divider(),
-                        _buildMenuItem(
                           Icons.info_outline_rounded,
                           'About',
                           subtitle: 'Version 1.0.0',
-                          onTap: () {},
+                          onTap: _showAboutDialog,
                         ),
                       ],
                     ),
@@ -331,14 +430,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    return parts.isEmpty ? 'U' : parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
   }
 
-  String _getMemberDate() {
-    final now = DateTime.now();
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${months[now.month - 1]} ${now.year}';
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'About',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        content: Text(
+          'This is a dummy project built for demonstration purposes. It showcases a beautiful UI and Firebase integration.',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withValues(alpha: 0.7),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Close',
+              style: TextStyle(color: Color(0xFFD4F53C), fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStatBox(String number, String label, IconData icon) {
