@@ -27,6 +27,10 @@ class AuthService {
       await _firestore.collection('users').doc(result.user!.uid).set({
         'fullName': fullName,
         'email': email,
+        'bio': '',
+        'avatarId': 0,
+        'pushEnabled': true,
+        'emailEnabled': true,
         'createdAt': FieldValue.serverTimestamp(),
         'eventsJoined': [],
       });
@@ -81,7 +85,7 @@ class AuthService {
         throw 'Google sign-in was cancelled.';
       }
 
-      final googleAuth = googleUser.authentication;
+      final googleAuth = await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
@@ -98,6 +102,10 @@ class AuthService {
         await _firestore.collection('users').doc(result.user!.uid).set({
           'fullName': result.user?.displayName ?? '',
           'email': result.user?.email ?? '',
+          'bio': '',
+          'avatarId': 0,
+          'pushEnabled': true,
+          'emailEnabled': true,
           'createdAt': FieldValue.serverTimestamp(),
           'eventsJoined': [],
         });
@@ -126,16 +134,28 @@ class AuthService {
     }
   }
 
-  Future<void> updateProfile({String? fullName}) async {
+  Future<void> updateProfile({String? fullName, String? bio, int? avatarId}) async {
     try {
       final user = _auth.currentUser;
       if (user == null) throw 'No user signed in.';
 
+      final Map<String, dynamic> updates = {};
+
       if (fullName != null && fullName.trim().isNotEmpty) {
         await user.updateDisplayName(fullName.trim());
-        await _firestore.collection('users').doc(user.uid).update({
-          'fullName': fullName.trim(),
-        });
+        updates['fullName'] = fullName.trim();
+      }
+
+      if (bio != null) {
+        updates['bio'] = bio.trim();
+      }
+
+      if (avatarId != null) {
+        updates['avatarId'] = avatarId;
+      }
+
+      if (updates.isNotEmpty) {
+        await _firestore.collection('users').doc(user.uid).update(updates);
       }
 
       await user.reload();
@@ -146,6 +166,24 @@ class AuthService {
       debugPrint('Profile Update Error: $e');
       if (e is String) rethrow;
       throw 'Failed to update profile. Please try again.';
+    }
+  }
+
+  Future<void> updateNotificationPreferences(bool pushEnabled, bool emailEnabled) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw 'No user signed in.';
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'pushEnabled': pushEnabled,
+        'emailEnabled': emailEnabled,
+      });
+    } on FirebaseException catch (e) {
+      debugPrint('Notification Update Error: ${e.code} - ${e.message}');
+      throw _getErrorMessage(e.code, e.message);
+    } catch (e) {
+      debugPrint('Notification Update Error: $e');
+      throw 'Failed to update preferences. Please try again.';
     }
   }
 
