@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -13,10 +14,23 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _bioController = TextEditingController();
   final _authService = AuthService();
 
   bool _isLoading = false;
   bool _hasChanges = false;
+  String _originalBio = '';
+  int _originalAvatarId = 0;
+  int _selectedAvatarId = 0;
+
+  static const List<Map<String, dynamic>> avatarStyles = [
+    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null}, // default
+    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
+    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
+    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
+    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
+    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
+  ];
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -28,11 +42,38 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     final user = FirebaseAuth.instance.currentUser;
     _nameController.text = user?.displayName ?? '';
 
-    _nameController.addListener(() {
-      final currentName = FirebaseAuth.instance.currentUser?.displayName ?? '';
+    _nameController.text = user?.displayName ?? '';
+
+    _loadUserData();
+
+    _nameController.addListener(_checkChanges);
+    _bioController.addListener(_checkChanges);
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final doc = await FirebaseFirestore.instance
+        .collection('users').doc(user.uid).get();
+    if (doc.exists && mounted) {
+      final data = doc.data()!;
+      final bio = (data['bio'] as String?) ?? '';
+      final avatarId = (data['avatarId'] as int?) ?? 0;
       setState(() {
-        _hasChanges = _nameController.text.trim() != currentName;
+        _originalBio = bio;
+        _bioController.text = bio;
+        _originalAvatarId = avatarId;
+        _selectedAvatarId = avatarId;
       });
+    }
+  }
+
+  void _checkChanges() {
+    final currentName = FirebaseAuth.instance.currentUser?.displayName ?? '';
+    setState(() {
+      _hasChanges = _nameController.text.trim() != currentName ||
+          _bioController.text.trim() != _originalBio ||
+          _selectedAvatarId != _originalAvatarId;
     });
 
     _animController = AnimationController(
@@ -56,6 +97,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   @override
   void dispose() {
     _nameController.dispose();
+    _bioController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -68,6 +110,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     try {
       await _authService.updateProfile(
         fullName: _nameController.text.trim(),
+        bio: _bioController.text.trim(),
+        avatarId: _selectedAvatarId,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -157,28 +201,87 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                             height: 90,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [Color(0xFFD4F53C), Color(0xFF8BC34A)],
+                                colors: avatarStyles[_selectedAvatarId]['colors'],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFD4F53C).withOpacity(0.2),
+                                  color: avatarStyles[_selectedAvatarId]['colors'][0].withValues(alpha: 0.2),
                                   blurRadius: 24,
                                   spreadRadius: 2,
                                 ),
                               ],
                             ),
                             child: Center(
-                              child: Text(
-                                initials,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF0A0A0A),
-                                ),
-                              ),
+                              child: avatarStyles[_selectedAvatarId]['icon'] == null
+                                  ? Text(
+                                      initials,
+                                      style: const TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF0A0A0A),
+                                      ),
+                                    )
+                                  : Icon(
+                                      avatarStyles[_selectedAvatarId]['icon'],
+                                      size: 40,
+                                      color: const Color(0xFF0A0A0A),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          SizedBox(
+                            height: 60,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: avatarStyles.length,
+                              itemBuilder: (context, index) {
+                                final style = avatarStyles[index];
+                                final isSelected = _selectedAvatarId == index;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedAvatarId = index;
+                                    });
+                                    _checkChanges();
+                                  },
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: style['colors'],
+                                      ),
+                                      border: isSelected
+                                          ? Border.all(color: Colors.white, width: 3)
+                                          : Border.all(color: Colors.transparent, width: 3),
+                                    ),
+                                    child: Center(
+                                      child: style['icon'] == null
+                                          ? Text(
+                                              initials,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                                color: Color(0xFF0A0A0A),
+                                              ),
+                                            )
+                                          : Icon(
+                                              style['icon'],
+                                              size: 24,
+                                              color: const Color(0xFF0A0A0A),
+                                            ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(height: 28),
@@ -258,6 +361,74 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       }
                                       return null;
                                     },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161616),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFF1F1F1F),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                  child: Text(
+                                    'BIO',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white.withOpacity(0.3),
+                                      letterSpacing: 1.2,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                  child: TextFormField(
+                                    controller: _bioController,
+                                    maxLines: 3,
+                                    maxLength: 150,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    cursorColor: const Color(0xFFD4F53C),
+                                    decoration: InputDecoration(
+                                      hintText: 'Tell us about yourself...',
+                                      hintStyle: TextStyle(
+                                        color: Colors.white.withOpacity(0.2),
+                                        fontSize: 14,
+                                      ),
+                                      counterStyle: TextStyle(
+                                        color: Colors.white.withOpacity(0.2),
+                                        fontSize: 11,
+                                      ),
+                                      filled: true,
+                                      fillColor: const Color(0xFF1E1E1E),
+                                      contentPadding: const EdgeInsets.all(14),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFFD4F53C),
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
