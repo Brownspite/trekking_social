@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/event_model.dart';
+import '../services/event_service.dart';
 import 'event_detail_screen.dart';
+import 'create_event_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,8 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedChip = 0;
-  final List<String> _categories = ['All', 'Trekking', 'Dinner', 'Meetup'];
-  final List<TrekEvent> _events = TrekEvent.sampleEvents();
+  final EventService _eventService = EventService();
+  List<TrekEvent> _events = [];
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -60,16 +62,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  List<String> get _categories {
+    final tags = _events.map((e) => e.tag).toSet().toList();
+    tags.sort();
+    return ['All', ...tags];
+  }
+
   List<TrekEvent> get _filteredEvents {
     var events = _events;
 
     if (_selectedChip != 0) {
-      final category = _categories[_selectedChip];
-      events = events.where((e) =>
-        e.tag == category ||
-        (category == 'Meetup' && e.tag == 'Meetup') ||
-        (category == 'Dinner' && e.tag == 'Social')
-      ).toList();
+      final cats = _categories;
+      if (_selectedChip < cats.length) {
+        final category = cats[_selectedChip];
+        events = events.where((e) => e.tag == category).toList();
+      } else {
+        _selectedChip = 0;
+      }
     }
 
     if (_searchQuery.isNotEmpty) {
@@ -97,15 +106,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final user = FirebaseAuth.instance.currentUser;
     final greeting = _getGreeting();
 
-    return SafeArea(
-      child: RefreshIndicator(
-        color: const Color(0xFFD4F53C),
-        backgroundColor: const Color(0xFF1E1E1E),
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-          setState(() {});
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateEventScreen()),
+          );
         },
-        child: CustomScrollView(
+        backgroundColor: const Color(0xFFD4F53C),
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add_rounded, color: Color(0xFF0A0A0A), size: 28),
+      ),
+      body: SafeArea(
+        child: StreamBuilder<List<TrekEvent>>(
+        stream: _eventService.streamEvents(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting && _events.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFD4F53C)),
+            );
+          }
+          if (snapshot.hasData) {
+            _events = snapshot.data!;
+          }
+          return RefreshIndicator(
+            color: const Color(0xFFD4F53C),
+            backgroundColor: const Color(0xFF1E1E1E),
+            onRefresh: () async {
+              final events = await _eventService.getEvents();
+              setState(() => _events = events);
+            },
+            child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics(),
           ),
@@ -375,10 +409,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-          ],
-        ),
+            ],
+          ),
+          );
+        },
       ),
-    );
+    ));
   }
 
 
