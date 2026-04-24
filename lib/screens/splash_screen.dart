@@ -15,7 +15,6 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              // Logo
               Container(
                 width: 72,
                 height: 72,
@@ -35,7 +34,6 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Title
               const Text(
                 'Community\nHub',
                 textAlign: TextAlign.center,
@@ -55,7 +53,6 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(flex: 3),
-              // Get Started Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -86,7 +83,6 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              // Log In Button
               SizedBox(
                 width: double.infinity,
                 height: 52,

@@ -13,10 +13,8 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Simulated "joined" events — first 2 from sample data
   final List<TrekEvent> _joinedEvents = TrekEvent.sampleEvents().sublist(0, 2);
 
-  // Simulated past events
   final List<Map<String, String>> _pastEvents = const [
     {'date': 'Mar 3', 'name': 'Lago di Como Hike', 'tag': 'Trekking'},
     {'date': 'Feb 22', 'name': 'Spring Meetup', 'tag': 'Meetup'},
@@ -42,7 +40,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Row(
@@ -56,7 +53,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                     color: Colors.white,
                   ),
                 ),
-                // Count badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -77,7 +73,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
           ),
           const SizedBox(height: 16),
 
-          // Tab bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -117,7 +112,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
           ),
           const SizedBox(height: 16),
 
-          // Tab content
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -202,7 +196,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            // Top gradient strip
             Container(
               height: 6,
               decoration: BoxDecoration(
@@ -215,7 +208,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  // Date block
                   Container(
                     width: 52,
                     height: 52,
@@ -251,7 +243,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                     ),
                   ),
                   const SizedBox(width: 14),
-                  // Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,7 +294,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                       ],
                     ),
                   ),
-                  // Joined badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -395,7 +385,6 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                 ),
               ),
             ),
-            // Tag
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(

@@ -23,7 +23,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -48,7 +47,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                   ],
                 ),
-                // Month indicator
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
@@ -82,7 +80,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Calendar grid
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -98,7 +95,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
             const SizedBox(height: 20),
 
-            // Events for selected day or all upcoming
             _buildEventSection(),
           ],
         ),
@@ -131,7 +127,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Column(
       children: [
-        // Day headers
         Row(
           children: daysOfWeek.map((day) => Expanded(
             child: Center(
@@ -147,7 +142,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           )).toList(),
         ),
         const SizedBox(height: 10),
-        // Day cells
         ...List.generate(((daysInMonth + startWeekday - 1) / 7).ceil(), (week) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 4),
@@ -344,7 +338,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
         child: Row(
           children: [
-            // Date block
             Container(
               width: 48,
               height: 48,
@@ -365,7 +358,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +391,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ],
               ),
             ),
-            // Price tag
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(

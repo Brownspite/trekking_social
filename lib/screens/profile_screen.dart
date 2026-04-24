@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import 'edit_profile_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -16,7 +22,6 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 100),
         child: Column(
           children: [
-            // Profile header card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -36,7 +41,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // Avatar
                     Container(
                       width: 76,
                       height: 76,
@@ -97,7 +101,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Stats row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -112,7 +115,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Settings section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -143,7 +145,17 @@ class ProfileScreen extends StatelessWidget {
                           Icons.person_outline_rounded,
                           'Edit Profile',
                           subtitle: 'Name, photo, bio',
-                          onTap: () {},
+                          onTap: () async {
+                            final updated = await Navigator.push<bool>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EditProfileScreen(),
+                              ),
+                            );
+                            if (updated == true && mounted) {
+                              setState(() {});
+                            }
+                          },
                         ),
                         _divider(),
                         _buildMenuItem(
@@ -167,7 +179,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Support section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -215,12 +226,10 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Logout button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GestureDetector(
                 onTap: () async {
-                  // Show confirmation dialog
                   final shouldLogout = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
@@ -304,7 +313,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // App version
             Text(
               'Trekking Social v1.0.0',
               style: TextStyle(

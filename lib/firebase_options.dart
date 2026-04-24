@@ -1,9 +1,7 @@
-// ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -38,7 +36,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'trekking-social.firebasestorage.app',
   );
 
-  // Reusing web keys for other platforms temporarily as a fallback
   static const FirebaseOptions android = web;
   static const FirebaseOptions ios = web;
   static const FirebaseOptions macos = web;

@@ -54,7 +54,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
         children: [
           CustomScrollView(
             slivers: [
-              // Hero Image Area
               SliverAppBar(
                 expandedHeight: 260,
                 pinned: true,
@@ -81,7 +80,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
                       onTap: () {
-                        // TODO: Share event
                       },
                       child: Container(
                         width: 40,
@@ -110,7 +108,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                     ),
                     child: Stack(
                       children: [
-                        // Pattern overlay
                         ...List.generate(5, (i) {
                           return Positioned(
                             right: -20 + (i * 40.0),
@@ -125,7 +122,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                             ),
                           );
                         }),
-                        // Center icon
                         Center(
                           child: Icon(
                             e.icon,
@@ -133,7 +129,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                             color: Colors.white.withOpacity(0.15),
                           ),
                         ),
-                        // Bottom gradient fade
                         Positioned(
                           bottom: 0,
                           left: 0,
@@ -158,7 +153,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 ),
               ),
 
-              // Content
               SliverToBoxAdapter(
                 child: FadeTransition(
                   opacity: _fadeAnim,
@@ -169,7 +163,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Tags
                           Row(
                             children: [
                               _buildTag(e.tag, e.tagColor, e.tagBg),
@@ -193,7 +186,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                           const SizedBox(height: 14),
 
-                          // Title
                           Text(
                             e.title,
                             style: const TextStyle(
@@ -205,7 +197,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                           const SizedBox(height: 6),
 
-                          // Organizer
                           Text(
                             'by ${e.organizer}',
                             style: TextStyle(
@@ -216,7 +207,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                           const SizedBox(height: 20),
 
-                          // Info cards row
                           Row(
                             children: [
                               Expanded(
@@ -246,11 +236,9 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                           const SizedBox(height: 20),
 
-                          // Spots progress
                           _buildSpotsSection(e),
                           const SizedBox(height: 24),
 
-                          // About section
                           const Text(
                             'About',
                             style: TextStyle(
@@ -270,7 +258,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                           const SizedBox(height: 24),
 
-                          // Highlights
                           if (e.highlights.isNotEmpty) ...[
                             const Text(
                               'Highlights',
@@ -314,7 +301,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
 
                           const SizedBox(height: 24),
 
-                          // Location card
                           _buildLocationCard(e),
                         ],
                       ),
@@ -325,7 +311,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ],
           ),
 
-          // Bottom CTA
           Positioned(
             bottom: 0,
             left: 0,
@@ -348,7 +333,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 top: false,
                 child: Row(
                   children: [
-                    // Price
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -371,7 +355,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                       ],
                     ),
                     const SizedBox(width: 20),
-                    // Join button
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -567,7 +550,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ],
           ),
           const SizedBox(height: 12),
-          // Progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(

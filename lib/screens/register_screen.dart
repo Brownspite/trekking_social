@@ -31,6 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  bool _isGoogleLoading = false;
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -45,7 +47,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      // Pop all routes back to root so AuthWrapper can show AppShell
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -58,6 +59,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _authService.signInWithGoogle();
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e is String ? e : e.toString();
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
         });
       }
     }
@@ -76,7 +103,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                // Back button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF555555), size: 20),
@@ -84,7 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   constraints: const BoxConstraints(),
                 ),
                 const SizedBox(height: 24),
-                // Title
                 const Text(
                   'Create\naccount',
                   style: TextStyle(
@@ -103,7 +128,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                // Error message
                 if (_errorMessage != null)
                   Container(
                     width: double.infinity,
@@ -119,7 +143,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: const TextStyle(color: Color(0xFFFF6B6B), fontSize: 13),
                     ),
                   ),
-                // Full name
                 _buildTextField(
                   controller: _fullNameController,
                   hint: 'Full name',
@@ -132,7 +155,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                // Email
                 _buildTextField(
                   controller: _emailController,
                   hint: 'Email address',
@@ -149,7 +171,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                // Password
                 _buildTextField(
                   controller: _passwordController,
                   hint: 'Password',
@@ -174,7 +195,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                // Confirm password
                 _buildTextField(
                   controller: _confirmPasswordController,
                   hint: 'Confirm password',
@@ -196,7 +216,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Create Account button
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -230,7 +249,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Divider
                 Row(
                   children: [
                     Expanded(child: Container(height: 1, color: const Color(0xFF1E1E1E))),
@@ -242,14 +260,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Google sign-in (placeholder)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton(
-                    onPressed: () {
-                      // TODO: Implement Google Sign-In later
-                    },
+                    onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF555555),
                       side: const BorderSide(color: Color(0xFF252525)),
@@ -257,14 +272,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Continue with Google',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
+                    child: _isGoogleLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Color(0xFF555555),
+                            ),
+                          )
+                        : const Text(
+                            'Continue with Google',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Login link
                 Center(
                   child: GestureDetector(
                     onTap: () {

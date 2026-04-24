@@ -35,8 +35,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Listens to Firebase Auth state changes and shows
-/// either the Splash screen or the Home screen.
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -45,7 +43,6 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Show loading spinner while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             backgroundColor: Color(0xFF0A0A0A),
@@ -57,12 +54,10 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // If user is logged in, show Home screen
         if (snapshot.hasData) {
           return const AppShell();
         }
 
-        // If not logged in, show Splash screen
         return const SplashScreen();
       },
     );

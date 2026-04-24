@@ -63,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<TrekEvent> get _filteredEvents {
     var events = _events;
 
-    // Category filter
     if (_selectedChip != 0) {
       final category = _categories[_selectedChip];
       events = events.where((e) =>
@@ -73,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ).toList();
     }
 
-    // Search filter
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       events = events.where((e) =>
@@ -104,7 +102,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         color: const Color(0xFFD4F53C),
         backgroundColor: const Color(0xFF1E1E1E),
         onRefresh: () async {
-          // TODO: Fetch events from Firestore
           await Future.delayed(const Duration(seconds: 1));
           setState(() {});
         },
@@ -113,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             parent: BouncingScrollPhysics(),
           ),
           slivers: [
-            // ── Header ──
             SliverToBoxAdapter(
               child: FadeTransition(
                 opacity: _headerFade,
@@ -146,10 +142,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        // Avatar
                         GestureDetector(
                           onTap: () {
-                            // Could navigate to profile
                           },
                           child: Container(
                             width: 44,
@@ -182,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // ── Search Bar ──
             SliverToBoxAdapter(
               child: FadeTransition(
                 opacity: _headerFade,
@@ -240,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // ── Featured Event Banner ──
             if (_searchQuery.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
@@ -249,7 +241,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-            // ── Upcoming This Week ──
             if (_searchQuery.isEmpty) ...[
               SliverToBoxAdapter(
                 child: Padding(
@@ -267,7 +258,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Could navigate to calendar
                         },
                         child: Text(
                           'See all',
@@ -300,7 +290,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ],
 
-            // ── Section: All Events ──
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -330,7 +319,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // ── Category Chips ──
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -338,7 +326,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            // ── Event Cards ──
             if (_filteredEvents.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
@@ -394,7 +381,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ─── Helpers ───
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -419,7 +405,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ─── Widgets ───
 
   Widget _buildFeaturedBanner(TrekEvent event) {
     return GestureDetector(
@@ -437,7 +422,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         child: Stack(
           children: [
-            // Decorative circles
             Positioned(
               right: -30,
               top: -30,
@@ -462,7 +446,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            // Content
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -583,7 +566,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         child: Stack(
           children: [
-            // Background icon
             Positioned(
               right: -10,
               bottom: -10,
@@ -593,7 +575,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.white.withOpacity(0.06),
               ),
             ),
-            // Content
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -745,7 +726,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gradient image area
             Container(
               height: 100,
               width: double.infinity,
@@ -758,7 +738,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               child: Stack(
                 children: [
-                  // Decorative pattern
                   Positioned(
                     right: 20,
                     top: 10,
@@ -780,7 +759,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Center icon
                   Center(
                     child: Container(
                       width: 44,
@@ -796,7 +774,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Spots badge
                   if (event.isAlmostFull)
                     Positioned(
                       top: 10,
@@ -834,13 +811,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            // Card body
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tag row
                   Row(
                     children: [
                       Container(
@@ -883,7 +858,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ],
                       const Spacer(),
-                      // Arrow
                       Container(
                         width: 28,
                         height: 28,
@@ -900,7 +874,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Title
                   Text(
                     event.title,
                     style: const TextStyle(
@@ -910,7 +883,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // Meta row
                   Row(
                     children: [
                       Icon(
@@ -951,7 +923,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // Footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -965,7 +936,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       Row(
                         children: [
-                          // Spots indicator dots
                           ...List.generate(5, (i) {
                             final filled = (event.spotsPercentage * 5).ceil();
                             return Container(

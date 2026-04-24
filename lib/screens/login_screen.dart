@@ -26,6 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _isGoogleLoading = false;
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -39,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      // Pop all routes back to root so AuthWrapper can show AppShell
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -59,6 +60,147 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _authService.signInWithGoogle();
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e is String ? e : e.toString();
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showForgotPasswordDialog() {
+    final resetEmailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Reset Password',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter your email and we\'ll send you a link to reset your password.',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.white.withOpacity(0.5),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: resetEmailController,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Color(0xFFCCCCCC), fontSize: 14),
+              cursorColor: const Color(0xFFD4F53C),
+              decoration: InputDecoration(
+                hintText: 'Email address',
+                hintStyle: const TextStyle(color: Color(0xFF555555), fontSize: 13),
+                filled: true,
+                fillColor: const Color(0xFF161616),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD4F53C), width: 1),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = resetEmailController.text.trim();
+              if (email.isEmpty) return;
+              Navigator.pop(ctx);
+              try {
+                await _authService.sendPasswordReset(email);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text(
+                        'Password reset email sent! Check your inbox.',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      backgroundColor: const Color(0xFF1A3A1A),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e is String ? e : 'Failed to send reset email.',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      backgroundColor: const Color(0xFF3A1A1A),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text(
+              'Send Link',
+              style: TextStyle(
+                color: Color(0xFFD4F53C),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +214,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                // Back button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF555555), size: 20),
@@ -80,7 +221,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   constraints: const BoxConstraints(),
                 ),
                 const SizedBox(height: 48),
-                // Title
                 const Text(
                   'Welcome\nback',
                   style: TextStyle(
@@ -99,7 +239,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 36),
-                // Error message
                 if (_errorMessage != null)
                   Container(
                     width: double.infinity,
@@ -115,7 +254,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Color(0xFFFF6B6B), fontSize: 13),
                     ),
                   ),
-                // Email
                 _buildTextField(
                   controller: _emailController,
                   hint: 'Email address',
@@ -129,7 +267,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                // Password
                 _buildTextField(
                   controller: _passwordController,
                   hint: 'Password',
@@ -151,13 +288,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
-                // Forgot password
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {
-                      // TODO: Implement forgot password
-                    },
+                    onPressed: _showForgotPasswordDialog,
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
@@ -170,7 +304,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Login button
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -204,7 +337,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Divider
                 Row(
                   children: [
                     Expanded(child: Container(height: 1, color: const Color(0xFF1E1E1E))),
@@ -216,14 +348,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Google sign-in (placeholder)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton(
-                    onPressed: () {
-                      // TODO: Implement Google Sign-In later
-                    },
+                    onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF555555),
                       side: const BorderSide(color: Color(0xFF252525)),
@@ -231,14 +360,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Continue with Google',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
+                    child: _isGoogleLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Color(0xFF555555),
+                            ),
+                          )
+                        : const Text(
+                            'Continue with Google',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 28),
-                // Register link
                 Center(
                   child: GestureDetector(
                     onTap: () {

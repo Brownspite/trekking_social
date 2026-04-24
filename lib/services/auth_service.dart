@@ -1,34 +1,29 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Stream of auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Get current user
   User? get currentUser => _auth.currentUser;
 
-  // Register with email and password
   Future<UserCredential> registerWithEmailAndPassword({
     required String fullName,
     required String email,
     required String password,
   }) async {
     try {
-      // Create user in Firebase Auth
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Update display name
       await result.user?.updateDisplayName(fullName);
 
-      // Create user profile document in Firestore
       await _firestore.collection('users').doc(result.user!.uid).set({
         'fullName': fullName,
         'email': email,
@@ -49,7 +44,6 @@ class AuthService {
     }
   }
 
-  // Sign in with email and password
   Future<UserCredential> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -74,12 +68,94 @@ class AuthService {
     }
   }
 
-  // Sign out
+  Future<UserCredential> signInWithGoogle() async {
+    try {
+      final googleSignIn = GoogleSignIn(
+        clientId: '82918405342-l4t5aeiscunco0vgnctll3i4t3th8sei.apps.googleusercontent.com',
+      );
+
+      final GoogleSignInAccount? googleUser =
+          await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        throw 'Google sign-in was cancelled.';
+      }
+
+      final googleAuth = googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final result = await _auth.signInWithCredential(credential);
+
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(result.user!.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        await _firestore.collection('users').doc(result.user!.uid).set({
+          'fullName': result.user?.displayName ?? '',
+          'email': result.user?.email ?? '',
+          'createdAt': FieldValue.serverTimestamp(),
+          'eventsJoined': [],
+        });
+      }
+
+      return result;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Google Sign-In Auth Error: ${e.code} - ${e.message}');
+      throw _getErrorMessage(e.code, e.message);
+    } catch (e) {
+      debugPrint('Google Sign-In Error: $e');
+      if (e is String) rethrow;
+      throw 'Google sign-in failed. Please try again.';
+    }
+  }
+
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Password Reset Error: ${e.code} - ${e.message}');
+      throw _getErrorMessage(e.code, e.message);
+    } catch (e) {
+      debugPrint('Password Reset Error: $e');
+      throw 'Failed to send reset email. Please try again.';
+    }
+  }
+
+  Future<void> updateProfile({String? fullName}) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw 'No user signed in.';
+
+      if (fullName != null && fullName.trim().isNotEmpty) {
+        await user.updateDisplayName(fullName.trim());
+        await _firestore.collection('users').doc(user.uid).update({
+          'fullName': fullName.trim(),
+        });
+      }
+
+      await user.reload();
+    } on FirebaseException catch (e) {
+      debugPrint('Profile Update Error: ${e.code} - ${e.message}');
+      throw _getErrorMessage(e.code, e.message);
+    } catch (e) {
+      debugPrint('Profile Update Error: $e');
+      if (e is String) rethrow;
+      throw 'Failed to update profile. Please try again.';
+    }
+  }
+
   Future<void> signOut() async {
+    try {
+      await GoogleSignIn().disconnect();
+    } catch (_) {}
     await _auth.signOut();
   }
 
-  // Convert Firebase error codes to user-friendly messages
   String _getErrorMessage(String code, String? fallback) {
     switch (code) {
       case 'weak-password':
@@ -107,3 +183,4 @@ class AuthService {
     }
   }
 }
+
