@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import 'event_detail_screen.dart';
 
@@ -13,7 +15,8 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final List<TrekEvent> _joinedEvents = TrekEvent.sampleEvents().sublist(0, 2);
+  List<TrekEvent> _joinedEvents = [];
+  bool _isLoading = true;
 
   final List<Map<String, String>> _pastEvents = const [
     {'date': 'Mar 3', 'name': 'Lago di Como Hike', 'tag': 'Trekking'},
@@ -26,6 +29,38 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadJoinedEvents();
+  }
+
+  Future<void> _loadJoinedEvents() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users').doc(user.uid).get();
+
+    if (!userDoc.exists || !mounted) return;
+    final eventsJoined = List<String>.from(userDoc.data()?['eventsJoined'] ?? []);
+
+    if (eventsJoined.isEmpty) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
+    final eventsSnap = await FirebaseFirestore.instance
+        .collection('events')
+        .where(FieldPath.documentId, whereIn: eventsJoined.take(10).toList())
+        .get();
+
+    final events = eventsSnap.docs.map((doc) => TrekEvent.fromFirestore(doc)).toList();
+    events.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+    if (mounted) {
+      setState(() {
+        _joinedEvents = events;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -127,6 +162,11 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   }
 
   Widget _buildUpcomingTab() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFFD4F53C)),
+      );
+    }
     if (_joinedEvents.isEmpty) {
       return Center(
         child: Padding(
