@@ -21,10 +21,6 @@
 - Basic user profile
 - Simple dashboard showing upcoming events
 
-## Payments
-- Application must include payment integration.
-- Preferred solution: **Stripe** or a similar payment system.
-- Users should be able to pay for events directly during registration.
 
 ## UI / Design Requirements
 - Look modern and clean
@@ -34,6 +30,5 @@
 ## Deliverables Expected
 - Fully working web application
 - Clean mobile-first UI
-- Payment integration
 - PWA capability
 - Basic deployment instructions
