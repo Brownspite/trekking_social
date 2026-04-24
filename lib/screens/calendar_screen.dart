@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/event_model.dart';
+import '../services/event_service.dart';
 import 'event_detail_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -10,7 +11,8 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  final List<TrekEvent> _events = TrekEvent.sampleEvents();
+  final EventService _eventService = EventService();
+  List<TrekEvent> _events = [];
   int? _selectedDay;
 
   @override
@@ -18,86 +20,99 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final now = DateTime.now();
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: StreamBuilder<List<TrekEvent>>(
+        stream: _eventService.streamEvents(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting && _events.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFD4F53C)),
+            );
+          }
+          if (snapshot.hasData) {
+            _events = snapshot.data!;
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Calendar',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Calendar',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _getMonthYear(now),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF555555),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _getMonthYear(now),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF555555),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF161616),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF1F1F1F),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.event_rounded,
+                            color: Color(0xFFD4F53C),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${_events.length} events',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF888888),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: const Color(0xFF161616),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: const Color(0xFF1F1F1F),
                       width: 1,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.event_rounded,
-                        color: Color(0xFFD4F53C),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${_events.length} events',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF888888),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: _buildCalendarGrid(now),
                 ),
+
+                const SizedBox(height: 20),
+
+                _buildEventSection(),
               ],
             ),
-            const SizedBox(height: 20),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF161616),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF1F1F1F),
-                  width: 1,
-                ),
-              ),
-              child: _buildCalendarGrid(now),
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildEventSection(),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
