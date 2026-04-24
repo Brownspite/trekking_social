@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TrekEvent {
   final String id;
@@ -20,6 +21,7 @@ class TrekEvent {
   final String organizer;
   final double? lat;
   final double? lng;
+  final List<Map<String, dynamic>> attendees;
 
   const TrekEvent({
     required this.id,
@@ -41,11 +43,104 @@ class TrekEvent {
     this.organizer = 'Trekking Social',
     this.lat,
     this.lng,
+    this.attendees = const [],
   });
 
   double get spotsPercentage => spots / maxSpots;
   bool get isAlmostFull => spotsPercentage <= 0.2;
   bool get isFree => price == 'Free';
+
+  static const Map<String, IconData> _iconMap = {
+    'terrain': Icons.terrain_rounded,
+    'restaurant': Icons.restaurant_rounded,
+    'sunny': Icons.wb_sunny_rounded,
+    'groups': Icons.groups_rounded,
+    'landscape': Icons.landscape_rounded,
+    'wine_bar': Icons.wine_bar_rounded,
+  };
+
+  static const Map<String, Color> _tagColorMap = {
+    'Trekking': Color(0xFF4AAA3A),
+    'Social': Color(0xFFCC8820),
+    'Meetup': Color(0xFF4A7ACC),
+  };
+
+  static const Map<String, Color> _tagBgMap = {
+    'Trekking': Color(0xFF0F2A0F),
+    'Social': Color(0xFF2A1E08),
+    'Meetup': Color(0xFF0F1E2A),
+  };
+
+  static const Map<String, List<Color>> _gradientMap = {
+    'green_forest': [Color(0xFF0D3B0D), Color(0xFF1A5C1A), Color(0xFF0F2A0F)],
+    'warm_amber': [Color(0xFF2A1500), Color(0xFF4A2800), Color(0xFF1E160E)],
+    'purple_dawn': [Color(0xFF1A0A2E), Color(0xFF2D1B4E), Color(0xFF0F0A1E)],
+    'blue_sky': [Color(0xFF0A1E3A), Color(0xFF1A3A5A), Color(0xFF0F1E2A)],
+    'deep_green': [Color(0xFF1A2A1A), Color(0xFF2A4A2A), Color(0xFF0A1A0A)],
+    'rose_wine': [Color(0xFF2A0A1A), Color(0xFF4A1A2A), Color(0xFF1E0A0E)],
+  };
+
+  factory TrekEvent.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    final tag = data['tag'] as String? ?? 'Trekking';
+    final iconKey = data['icon'] as String? ?? 'terrain';
+    final gradientKey = data['gradientPreset'] as String? ?? 'green_forest';
+
+    return TrekEvent(
+      id: doc.id,
+      title: data['title'] as String? ?? '',
+      description: data['description'] as String? ?? '',
+      date: data['date'] as String? ?? '',
+      dateTime: (data['dateTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      location: data['location'] as String? ?? '',
+      price: data['price'] as String? ?? 'Free',
+      spots: (data['spots'] as num?)?.toInt() ?? 0,
+      maxSpots: (data['maxSpots'] as num?)?.toInt() ?? 1,
+      tag: tag,
+      tagColor: _tagColorMap[tag] ?? const Color(0xFF4AAA3A),
+      tagBg: _tagBgMap[tag] ?? const Color(0xFF0F2A0F),
+      gradientColors: _gradientMap[gradientKey] ?? _gradientMap['green_forest']!,
+      icon: _iconMap[iconKey] ?? Icons.terrain_rounded,
+      difficulty: data['difficulty'] as String?,
+      highlights: List<String>.from(data['highlights'] ?? []),
+      organizer: data['organizer'] as String? ?? 'Trekking Social',
+      lat: (data['lat'] as num?)?.toDouble(),
+      lng: (data['lng'] as num?)?.toDouble(),
+      attendees: List<Map<String, dynamic>>.from(data['attendees'] ?? []),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    final iconEntry = _iconMap.entries.firstWhere(
+      (e) => e.value == icon,
+      orElse: () => const MapEntry('terrain', Icons.terrain_rounded),
+    );
+    final gradientEntry = _gradientMap.entries.firstWhere(
+      (e) => e.value.length == gradientColors.length &&
+          e.value.every((c) => gradientColors.contains(c)),
+      orElse: () => MapEntry('green_forest', _gradientMap['green_forest']!),
+    );
+
+    return {
+      'title': title,
+      'description': description,
+      'date': date,
+      'dateTime': Timestamp.fromDate(dateTime),
+      'location': location,
+      'price': price,
+      'spots': spots,
+      'maxSpots': maxSpots,
+      'tag': tag,
+      'icon': iconEntry.key,
+      'gradientPreset': gradientEntry.key,
+      'difficulty': difficulty,
+      'highlights': highlights,
+      'organizer': organizer,
+      'lat': lat,
+      'lng': lng,
+      'attendees': attendees,
+    };
+  }
 
   static List<TrekEvent> sampleEvents() {
     return [
