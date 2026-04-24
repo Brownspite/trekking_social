@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
+import '../services/event_service.dart';
+import 'public_profile_screen.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final TrekEvent event;
@@ -16,10 +20,24 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
   bool _isJoined = false;
+  bool _isLoadingUserData = true;
+  Map<String, dynamic>? _currentUserData;
+  List<Map<String, dynamic>> _attendees = [];
+
+  static const List<Map<String, dynamic>> _avatarStyles = [
+    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null}, // default
+    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
+    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
+    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
+    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
+    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
+  ];
 
   @override
   void initState() {
     super.initState();
+    _attendees = List.from(widget.event.attendees);
+    _loadUserData();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -36,6 +54,74 @@ class _EventDetailScreenState extends State<EventDetailScreen>
       curve: Curves.easeOutCubic,
     ));
     _animController.forward();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (doc.exists && mounted) {
+        final data = doc.data()!;
+        setState(() {
+          _currentUserData = data;
+          _isJoined = (data['eventsJoined'] as List?)?.contains(widget.event.id) ?? false;
+          _isLoadingUserData = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleJoin() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || _currentUserData == null) return;
+    
+    final newJoinState = !_isJoined;
+    
+    final attendeeMap = {
+      'uid': user.uid,
+      'name': user.displayName ?? 'User',
+      'avatarId': _currentUserData!['avatarId'] ?? 0,
+    };
+
+    setState(() {
+      _isJoined = newJoinState;
+      if (newJoinState) {
+        _attendees.add(attendeeMap);
+      } else {
+        _attendees.removeWhere((a) => a['uid'] == user.uid);
+      }
+    });
+
+    try {
+      await EventService().toggleEventJoin(widget.event.id, user.uid, newJoinState, attendeeMap);
+      if (mounted && newJoinState) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'You\'re in! 🎉 See you there.',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: const Color(0xFF1A3A1A),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 80),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isJoined = !newJoinState;
+          if (!newJoinState) {
+            _attendees.add(attendeeMap);
+          } else {
+            _attendees.removeWhere((a) => a['uid'] == user.uid);
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -299,6 +385,52 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                             )),
                           ],
 
+                          if (_attendees.isNotEmpty) ...[
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Attendees',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 48,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _attendees.length,
+                                itemBuilder: (context, index) {
+                                  final attendee = _attendees[index];
+                                  final avatarId = attendee['avatarId'] as int? ?? 0;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (_) => PublicProfileScreen(uid: attendee['uid'])));
+                                    },
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      margin: const EdgeInsets.only(right: 8),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: _avatarStyles[avatarId]['colors'],
+                                        ),
+                                        border: Border.all(color: const Color(0xFF222222), width: 1),
+                                      ),
+                                      child: _avatarStyles[avatarId]['icon'] == null
+                                        ? Center(child: Text(attendee['name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF0A0A0A), fontSize: 16)))
+                                        : Icon(_avatarStyles[avatarId]['icon'], color: const Color(0xFF0A0A0A), size: 20),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+
                           const SizedBox(height: 24),
 
                           _buildLocationCard(e),
@@ -357,25 +489,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                     const SizedBox(width: 20),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          setState(() => _isJoined = !_isJoined);
-                          if (_isJoined) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'You\'re in! 🎉 See you there.',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                backgroundColor: const Color(0xFF1A3A1A),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                margin: const EdgeInsets.fromLTRB(20, 0, 20, 80),
-                              ),
-                            );
-                          }
-                        },
+                        onTap: _isLoadingUserData ? null : _toggleJoin,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOut,
@@ -489,8 +603,8 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Widget _buildSpotsSection(TrekEvent e) {
-    final taken = e.maxSpots - e.spots;
-    final pct = taken / e.maxSpots;
+    final taken = _attendees.length;
+    final pct = e.maxSpots > 0 ? taken / e.maxSpots : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(16),
