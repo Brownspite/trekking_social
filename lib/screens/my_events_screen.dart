@@ -18,7 +18,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
   List<TrekEvent> _joinedEvents = [];
   bool _isLoading = true;
 
-  final List<Map<String, String>> _pastEvents = const [
+  List<Map<String, String>> _pastEvents = [
     {'date': 'Mar 3', 'name': 'Lago di Como Hike', 'tag': 'Trekking'},
     {'date': 'Feb 22', 'name': 'Spring Meetup', 'tag': 'Meetup'},
     {'date': 'Jan 10', 'name': 'City Walk Milan', 'tag': 'Trekking'},
@@ -52,12 +52,27 @@ class _MyEventsScreenState extends State<MyEventsScreen>
         .where(FieldPath.documentId, whereIn: eventsJoined.take(10).toList())
         .get();
 
-    final events = eventsSnap.docs.map((doc) => TrekEvent.fromFirestore(doc)).toList();
-    events.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    final allEvents = eventsSnap.docs.map((doc) => TrekEvent.fromFirestore(doc)).toList();
+    allEvents.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+    final now = DateTime.now();
+    final upcoming = allEvents.where((e) => e.dateTime.isAfter(now)).toList();
+    final past = allEvents.where((e) => e.dateTime.isBefore(now)).toList();
+
+    final realPastEvents = past.reversed.map((e) {
+      return {
+        'date': '${_getShortMonth(e.dateTime.month)} ${e.dateTime.day}',
+        'name': e.title,
+        'tag': e.tag,
+      };
+    }).toList();
 
     if (mounted) {
       setState(() {
-        _joinedEvents = events;
+        _joinedEvents = upcoming;
+        if (realPastEvents.isNotEmpty) {
+          _pastEvents = realPastEvents;
+        }
         _isLoading = false;
       });
     }
