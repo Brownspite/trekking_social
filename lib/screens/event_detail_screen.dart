@@ -126,6 +126,26 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             _spotsTaken--;
           }
         });
+
+        String errorMessage = 'Failed to update attendance. Please try again.';
+        if (e.toString().contains('Event is full')) {
+          errorMessage = 'Sorry, this event is already full!';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errorMessage,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: const Color(0xFF3A1A1A),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 80),
+          ),
+        );
       }
     }
   }

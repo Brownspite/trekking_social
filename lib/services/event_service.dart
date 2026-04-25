@@ -39,27 +39,37 @@ class EventService {
     final eventRef = _eventsRef.doc(eventId);
     final userRef = _firestore.collection('users').doc(userId);
 
-    final batch = _firestore.batch();
+    await _firestore.runTransaction((transaction) async {
+      final eventDoc = await transaction.get(eventRef);
+      if (!eventDoc.exists) {
+        throw Exception("Event does not exist.");
+      }
 
-    if (isJoining) {
-      batch.update(eventRef, {
-        'spots': FieldValue.increment(1),
-        'attendees': FieldValue.arrayUnion([attendeeMap])
-      });
-      batch.update(userRef, {
-        'eventsJoined': FieldValue.arrayUnion([eventId])
-      });
-    } else {
-      batch.update(eventRef, {
-        'spots': FieldValue.increment(-1),
-        'attendees': FieldValue.arrayRemove([attendeeMap])
-      });
-      batch.update(userRef, {
-        'eventsJoined': FieldValue.arrayRemove([eventId])
-      });
-    }
+      final data = eventDoc.data() as Map<String, dynamic>;
+      final spots = data['spots'] as int? ?? 0;
+      final maxSpots = data['maxSpots'] as int? ?? 1;
 
-    await batch.commit();
+      if (isJoining) {
+        if (spots >= maxSpots) {
+          throw Exception("Event is full");
+        }
+        transaction.update(eventRef, {
+          'spots': spots + 1,
+          'attendees': FieldValue.arrayUnion([attendeeMap])
+        });
+        transaction.update(userRef, {
+          'eventsJoined': FieldValue.arrayUnion([eventId])
+        });
+      } else {
+        transaction.update(eventRef, {
+          'spots': (spots - 1).clamp(0, maxSpots),
+          'attendees': FieldValue.arrayRemove([attendeeMap])
+        });
+        transaction.update(userRef, {
+          'eventsJoined': FieldValue.arrayRemove([eventId])
+        });
+      }
+    });
   }
 
   Future<void> seedEvents() async {
