@@ -44,11 +44,12 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   }
 
   String _getInitials(String name) {
-    final parts = name.trim().split(' ');
+    if (name.trim().isEmpty) return 'U';
+    final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return parts.isEmpty ? 'U' : parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
   }
 
   @override

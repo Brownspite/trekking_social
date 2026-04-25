@@ -46,6 +46,23 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
     _loadUserData();
 
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOut,
+    );
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    ));
+    _animController.forward();
+
     _nameController.addListener(_checkChanges);
     _bioController.addListener(_checkChanges);
   }
@@ -75,23 +92,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           _bioController.text.trim() != _originalBio ||
           _selectedAvatarId != _originalAvatarId;
     });
-
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _fadeAnim = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOut,
-    );
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOutCubic,
-    ));
-    _animController.forward();
   }
 
   @override
@@ -544,7 +544,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   String _getInitials(String name) {
-    final parts = name.trim().split(' ');
+    if (name.trim().isEmpty) return 'U';
+    final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
