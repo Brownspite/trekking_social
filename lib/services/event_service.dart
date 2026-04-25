@@ -35,6 +35,11 @@ class EventService {
     await docRef.set(event.toFirestore());
   }
 
+  Future<void> updateEvent(TrekEvent event) async {
+    final docRef = _eventsRef.doc(event.id);
+    await docRef.update(event.toFirestore());
+  }
+
   Future<void> toggleEventJoin(String eventId, String userId, bool isJoining, Map<String, dynamic> attendeeMap) async {
     final eventRef = _eventsRef.doc(eventId);
     final userRef = _firestore.collection('users').doc(userId);

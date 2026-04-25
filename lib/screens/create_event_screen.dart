@@ -6,7 +6,8 @@ import '../models/event_model.dart';
 import '../services/event_service.dart';
 
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  final TrekEvent? existingEvent;
+  const CreateEventScreen({super.key, this.existingEvent});
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -27,6 +28,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   TimeOfDay? _selectedTime;
   
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingEvent != null) {
+      final event = widget.existingEvent!;
+      _titleController.text = event.title;
+      _descriptionController.text = event.description;
+      _locationController.text = event.location;
+      _priceController.text = event.price == 'Free' ? '' : event.price.replaceAll(RegExp(r'[^\d.]'), '');
+      _spotsController.text = event.maxSpots.toString();
+      _selectedCategory = event.tag;
+      _selectedDate = event.dateTime;
+      _selectedTime = TimeOfDay.fromDateTime(event.dateTime);
+    }
+  }
 
   @override
   void dispose() {
@@ -143,8 +160,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         }
       }
 
+      final isEditing = widget.existingEvent != null;
+      final eventId = isEditing ? widget.existingEvent!.id : '';
+
       final event = TrekEvent(
-        id: '', // Firestore generates this
+        id: eventId,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         dateTime: dateTime,
@@ -157,7 +177,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         tagBg: const Color(0xFF1E1E1E),
         gradientColors: [], // Model uses gradientKey in toFirestore
         icon: Icons.event, // Model uses iconKey
-        organizer: organizerName,
+        organizer: isEditing ? widget.existingEvent!.organizer : organizerName,
+        creatorId: isEditing ? widget.existingEvent!.creatorId : user!.uid,
         difficulty: _selectedCategory == 'Trekking' ? 'Moderate' : null,
       );
 
@@ -181,19 +202,25 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           'icon': iconKey,
           'gradientPreset': gradientKey,
           'difficulty': event.difficulty,
-          'highlights': <String>[],
+          'highlights': isEditing ? widget.existingEvent!.highlights : <String>[],
           'organizer': event.organizer,
+          'creatorId': event.creatorId,
+          'attendees': isEditing ? widget.existingEvent!.attendees : <Map<String, dynamic>>[],
         })
       );
 
-      await EventService().createEvent(realEvent);
+      if (isEditing) {
+        await EventService().updateEvent(realEvent);
+      } else {
+        await EventService().createEvent(realEvent);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Event published successfully! 🎉',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            content: Text(
+              isEditing ? 'Event updated successfully! 🎉' : 'Event published successfully! 🎉',
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             backgroundColor: const Color(0xFF1A3A1A),
             behavior: SnackBarBehavior.floating,
@@ -208,7 +235,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to publish event: $e'),
+            content: Text(isEditing ? 'Failed to update event: $e' : 'Failed to publish event: $e'),
             backgroundColor: const Color(0xFF3A1A1A),
           ),
         );
@@ -229,8 +256,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Create Event',
+        title: Text(
+          widget.existingEvent != null ? 'Edit Event' : 'Create Event',
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
@@ -448,9 +475,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                               color: Color(0xFF0A0A0A),
                             ),
                           )
-                        : const Text(
-                            'Publish Event',
-                            style: TextStyle(
+                        : Text(
+                            widget.existingEvent != null ? 'Save Changes' : 'Publish Event',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                             ),

@@ -22,6 +22,7 @@ class TrekEvent {
   final double? lat;
   final double? lng;
   final List<Map<String, dynamic>> attendees;
+  final String creatorId;
 
   const TrekEvent({
     required this.id,
@@ -43,6 +44,7 @@ class TrekEvent {
     this.lat,
     this.lng,
     this.attendees = const [],
+    this.creatorId = '',
   });
 
   double get spotsPercentage => maxSpots > 0 ? (spots / maxSpots).clamp(0.0, 1.0) : 0.0;
@@ -120,6 +122,7 @@ class TrekEvent {
       difficulty: data['difficulty'] as String?,
       highlights: List<String>.from(data['highlights'] ?? []),
       organizer: data['organizer'] as String? ?? 'Trekking Social',
+      creatorId: data['creatorId'] as String? ?? '',
       lat: (data['lat'] as num?)?.toDouble(),
       lng: (data['lng'] as num?)?.toDouble(),
       attendees: List<Map<String, dynamic>>.from(data['attendees'] ?? []),
@@ -151,6 +154,7 @@ class TrekEvent {
       'difficulty': difficulty,
       'highlights': highlights,
       'organizer': organizer,
+      'creatorId': creatorId,
       'lat': lat,
       'lng': lng,
       'attendees': attendees,

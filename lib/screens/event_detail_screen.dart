@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
 import 'public_profile_screen.dart';
+import 'create_event_screen.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final TrekEvent event;
@@ -188,6 +189,34 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   ),
                 ),
                 actions: [
+                  if (FirebaseAuth.instance.currentUser?.uid == e.creatorId &&
+                      e.dateTime.isAfter(DateTime.now()))
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreateEventScreen(existingEvent: e),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.edit_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
