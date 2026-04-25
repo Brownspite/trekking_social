@@ -45,8 +45,11 @@ class TrekEvent {
     this.attendees = const [],
   });
 
-  double get spotsPercentage => maxSpots > 0 ? spots / maxSpots : 0.0;
-  int get spotsLeft => maxSpots - spots;
+  double get spotsPercentage => maxSpots > 0 ? (spots / maxSpots).clamp(0.0, 1.0) : 0.0;
+  int get spotsLeft {
+    final left = maxSpots - spots;
+    return left < 0 ? 0 : left;
+  }
   bool get isAlmostFull => maxSpots > 0 && (spotsLeft / maxSpots <= 0.25);
   bool get isFree => price == 'Free';
 
