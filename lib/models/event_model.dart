@@ -92,13 +92,18 @@ class TrekEvent {
     final iconKey = data['icon'] as String? ?? 'terrain';
     final gradientKey = data['gradientPreset'] as String? ?? 'green_forest';
 
+    String rawPrice = data['price'] as String? ?? 'Free';
+    if (rawPrice.contains('৳')) {
+      rawPrice = '${rawPrice.replaceAll('৳', '').trim()} Taka';
+    }
+
     return TrekEvent(
       id: doc.id,
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
       dateTime: (data['dateTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       location: data['location'] as String? ?? '',
-      price: data['price'] as String? ?? 'Free',
+      price: rawPrice,
       spots: (data['spots'] as num?)?.toInt() ?? 0,
       maxSpots: (data['maxSpots'] as num?)?.toInt() ?? 1,
       tag: tag,
