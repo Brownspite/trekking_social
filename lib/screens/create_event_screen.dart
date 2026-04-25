@@ -135,11 +135,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       final priceInput = _priceController.text.trim();
       String price = 'Free';
       if (priceInput.isNotEmpty && priceInput.toLowerCase() != 'free') {
-        final sanitizedPrice = priceInput.replaceAll('৳', '').trim();
-        if (!sanitizedPrice.toLowerCase().contains('taka')) {
-          price = '$sanitizedPrice Taka';
+        final digits = priceInput.replaceAll(RegExp(r'[^\d.]'), '');
+        if (digits.isNotEmpty) {
+          price = '$digits Taka';
         } else {
-          price = sanitizedPrice;
+          price = priceInput;
         }
       }
 

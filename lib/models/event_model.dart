@@ -93,8 +93,11 @@ class TrekEvent {
     final gradientKey = data['gradientPreset'] as String? ?? 'green_forest';
 
     String rawPrice = data['price'] as String? ?? 'Free';
-    if (rawPrice.contains('৳')) {
-      rawPrice = '${rawPrice.replaceAll('৳', '').trim()} Taka';
+    if (rawPrice.toLowerCase() != 'free') {
+      final digits = rawPrice.replaceAll(RegExp(r'[^\d.]'), '');
+      if (digits.isNotEmpty) {
+        rawPrice = '$digits Taka';
+      }
     }
 
     return TrekEvent(
