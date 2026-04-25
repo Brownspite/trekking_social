@@ -176,14 +176,13 @@ class AuthService {
     }
   }
 
-  Future<void> updateNotificationPreferences(bool pushEnabled, bool emailEnabled) async {
+  Future<void> updateNotificationPreferences(bool pushEnabled) async {
     try {
       final user = _auth.currentUser;
       if (user == null) throw 'No user signed in.';
 
       await _firestore.collection('users').doc(user.uid).update({
         'pushEnabled': pushEnabled,
-        'emailEnabled': emailEnabled,
       });
     } on FirebaseException catch (e) {
       debugPrint('Notification Update Error: ${e.code} - ${e.message}');

@@ -12,7 +12,6 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _pushEnabled = true;
-  bool _emailEnabled = true;
   bool _isLoading = true;
   final AuthService _authService = AuthService();
 
@@ -35,20 +34,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final data = doc.data()!;
       setState(() {
         _pushEnabled = (data['pushEnabled'] as bool?) ?? true;
-        _emailEnabled = (data['emailEnabled'] as bool?) ?? true;
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _updatePreferences(bool push, bool email) async {
+  Future<void> _updatePreferences(bool push) async {
     setState(() {
       _pushEnabled = push;
-      _emailEnabled = email;
     });
 
     try {
-      await _authService.updateNotificationPreferences(push, email);
+      await _authService.updateNotificationPreferences(push);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -138,19 +135,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           title: 'Push Notifications',
                           subtitle: 'New events and reminders',
                           value: _pushEnabled,
-                          onChanged: (val) => _updatePreferences(val, _emailEnabled),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
-                          height: 1,
-                          color: const Color(0xFF1F1F1F),
-                        ),
-                        _buildToggle(
-                          icon: Icons.email_rounded,
-                          title: 'Email Alerts',
-                          subtitle: 'Newsletters and account updates',
-                          value: _emailEnabled,
-                          onChanged: (val) => _updatePreferences(_pushEnabled, val),
+                          onChanged: (val) => _updatePreferences(val),
                         ),
                       ],
                     ),
