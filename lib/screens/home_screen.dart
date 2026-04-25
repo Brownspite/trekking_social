@@ -4,6 +4,9 @@ import '../models/event_model.dart';
 import '../services/event_service.dart';
 import 'event_detail_screen.dart';
 import 'create_event_screen.dart';
+import 'inbox_screen.dart';
+import '../models/notification_model.dart';
+import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -176,32 +179,74 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                          },
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFD4F53C), Color(0xFF8BC34A)],
-                              ),
+                        Row(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 28),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => const InboxScreen()));
+                                  },
+                                ),
+                                StreamBuilder<List<AppNotification>>(
+                                  stream: NotificationService().getUserNotifications(),
+                                  builder: (context, snapshot) {
+                                    final count = snapshot.data?.where((n) => !n.isRead).length ?? 0;
+                                    if (count == 0) return const SizedBox.shrink();
+                                    return Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFFFF6B6B),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          count > 9 ? '9+' : count.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            child: Center(
-                              child: Text(
-                                (user?.displayName?.isNotEmpty == true
-                                    ? user!.displayName![0]
-                                    : 'E')
-                                  .toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF0A0A0A),
+                            const SizedBox(width: 12),
+                            GestureDetector(
+                              onTap: () {
+                              },
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFFD4F53C), Color(0xFF8BC34A)],
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    (user?.displayName?.isNotEmpty == true
+                                        ? user!.displayName![0]
+                                        : 'E')
+                                      .toUpperCase(),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF0A0A0A),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),

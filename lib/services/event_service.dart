@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
+import 'notification_service.dart';
 
 class EventService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -43,6 +44,8 @@ class EventService {
   Future<void> toggleEventJoin(String eventId, String userId, bool isJoining, Map<String, dynamic> attendeeMap) async {
     final eventRef = _eventsRef.doc(eventId);
     final userRef = _firestore.collection('users').doc(userId);
+    String? creatorId;
+    String? eventTitle;
 
     await _firestore.runTransaction((transaction) async {
       final eventDoc = await transaction.get(eventRef);
@@ -53,6 +56,9 @@ class EventService {
       final data = eventDoc.data() as Map<String, dynamic>;
       final spots = data['spots'] as int? ?? 0;
       final maxSpots = data['maxSpots'] as int? ?? 1;
+      
+      creatorId = data['creatorId'] as String?;
+      eventTitle = data['title'] as String?;
 
       if (isJoining) {
         if (spots >= maxSpots) {
@@ -75,6 +81,22 @@ class EventService {
         });
       }
     });
+
+    if (isJoining && creatorId != null && creatorId!.isNotEmpty && eventTitle != null) {
+      try {
+        final userName = attendeeMap['name'] ?? 'Someone';
+        await NotificationService().sendNotification(
+          targetUserId: creatorId!,
+          title: 'New Attendee!',
+          body: '$userName is going to $eventTitle',
+          type: 'event_joined',
+          eventId: eventId,
+          fromUserId: userId,
+        );
+      } catch (e) {
+        // Silently ignore notification failure
+      }
+    }
   }
 
   Future<void> seedEvents() async {
