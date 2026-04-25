@@ -235,7 +235,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Failed to update event: $e' : 'Failed to publish event: $e'),
+            content: Text(widget.existingEvent != null ? 'Failed to update event: $e' : 'Failed to publish event: $e'),
             backgroundColor: const Color(0xFF3A1A1A),
           ),
         );

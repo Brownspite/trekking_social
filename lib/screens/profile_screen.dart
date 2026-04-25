@@ -266,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildMenuItem(
                           Icons.notifications_none_rounded,
                           'Notifications',
-                          subtitle: 'Push, email alerts',
+                          subtitle: 'Push alerts',
                           onTap: () {
                             Navigator.push(
                               context,
