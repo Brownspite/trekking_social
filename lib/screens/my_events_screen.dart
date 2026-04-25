@@ -365,7 +365,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                         ),
                         const SizedBox(width: 4),
                         const Text(
-                          'Joined',
+                          'Going',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

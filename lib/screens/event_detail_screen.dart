@@ -526,7 +526,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                _isJoined ? 'Joined' : 'Join Event',
+                                _isJoined ? 'Going' : 'Attend',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -639,7 +639,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '$taken / ${e.maxSpots} joined',
+                    '$taken / ${e.maxSpots} going',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
