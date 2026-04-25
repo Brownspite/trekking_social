@@ -23,6 +23,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   bool _isLoadingUserData = true;
   Map<String, dynamic>? _currentUserData;
   List<Map<String, dynamic>> _attendees = [];
+  int _spotsTaken = 0;
 
   static const List<Map<String, dynamic>> _avatarStyles = [
     {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null}, // default
@@ -37,6 +38,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   void initState() {
     super.initState();
     _attendees = List.from(widget.event.attendees);
+    _spotsTaken = widget.event.spots;
     _loadUserData();
     _animController = AnimationController(
       vsync: this,
@@ -87,8 +89,10 @@ class _EventDetailScreenState extends State<EventDetailScreen>
       _isJoined = newJoinState;
       if (newJoinState) {
         _attendees.add(attendeeMap);
+        _spotsTaken++;
       } else {
         _attendees.removeWhere((a) => a['uid'] == user.uid);
+        _spotsTaken--;
       }
     });
 
@@ -116,8 +120,10 @@ class _EventDetailScreenState extends State<EventDetailScreen>
           _isJoined = !newJoinState;
           if (!newJoinState) {
             _attendees.add(attendeeMap);
+            _spotsTaken++;
           } else {
             _attendees.removeWhere((a) => a['uid'] == user.uid);
+            _spotsTaken--;
           }
         });
       }
@@ -603,8 +609,10 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Widget _buildSpotsSection(TrekEvent e) {
-    final taken = _attendees.length;
+    final taken = _spotsTaken;
+    final spotsLeft = e.maxSpots > taken ? e.maxSpots - taken : 0;
     final pct = e.maxSpots > 0 ? taken / e.maxSpots : 0.0;
+    final isAlmostFull = e.maxSpots > 0 && (spotsLeft / e.maxSpots <= 0.25);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -643,19 +651,19 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: e.isAlmostFull
+                  color: isAlmostFull
                       ? const Color(0xFF2A0A0A)
                       : const Color(0xFF0F2A0F),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  e.isAlmostFull
-                      ? '${e.spots} spots left!'
-                      : '${e.spots} spots left',
+                  isAlmostFull
+                      ? '$spotsLeft spots left!'
+                      : '$spotsLeft spots left',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: e.isAlmostFull
+                    color: isAlmostFull
                         ? const Color(0xFFCC3333)
                         : const Color(0xFF4AAA3A),
                   ),
@@ -670,7 +678,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               value: pct,
               backgroundColor: const Color(0xFF222222),
               valueColor: AlwaysStoppedAnimation<Color>(
-                e.isAlmostFull
+                isAlmostFull
                     ? const Color(0xFFCC3333)
                     : const Color(0xFFD4F53C),
               ),

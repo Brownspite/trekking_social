@@ -11,14 +11,23 @@ class EventService {
         .orderBy('dateTime', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => TrekEvent.fromFirestore(doc)).toList();
+      final now = DateTime.now();
+      return snapshot.docs
+          .map((doc) => TrekEvent.fromFirestore(doc))
+          .where((event) => event.dateTime.isAfter(now))
+          .toList();
     });
   }
 
   Future<List<TrekEvent>> getEvents() async {
-    final snapshot =
-        await _eventsRef.orderBy('dateTime', descending: false).get();
-    return snapshot.docs.map((doc) => TrekEvent.fromFirestore(doc)).toList();
+    final snapshot = await _eventsRef
+        .orderBy('dateTime', descending: false)
+        .get();
+    final now = DateTime.now();
+    return snapshot.docs
+        .map((doc) => TrekEvent.fromFirestore(doc))
+        .where((event) => event.dateTime.isAfter(now))
+        .toList();
   }
 
   Future<void> createEvent(TrekEvent event) async {

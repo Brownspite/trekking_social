@@ -74,24 +74,31 @@ class AuthService {
 
   Future<UserCredential> signInWithGoogle() async {
     try {
-      final googleSignIn = GoogleSignIn(
-        clientId: '82918405342-l4t5aeiscunco0vgnctll3i4t3th8sei.apps.googleusercontent.com',
-      );
+      UserCredential result;
 
-      final GoogleSignInAccount? googleUser =
-          await googleSignIn.signIn();
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        result = await _auth.signInWithPopup(googleProvider);
+      } else {
+        final googleSignIn = GoogleSignIn(
+          clientId: '82918405342-l4t5aeiscunco0vgnctll3i4t3th8sei.apps.googleusercontent.com',
+        );
 
-      if (googleUser == null) {
-        throw 'Google sign-in was cancelled.';
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+        if (googleUser == null) {
+          throw 'Google sign-in was cancelled.';
+        }
+
+        final googleAuth = await googleUser.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+          accessToken: googleAuth.accessToken,
+        );
+
+        result = await _auth.signInWithCredential(credential);
       }
-
-      final googleAuth = await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-
-      final result = await _auth.signInWithCredential(credential);
 
       final userDoc = await _firestore
           .collection('users')

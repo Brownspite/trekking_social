@@ -547,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${event.spots} spots',
+                      '${event.spotsLeft} spots left',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.black.withOpacity(0.6),
@@ -833,7 +833,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              '${event.spots} left',
+                              '${event.spotsLeft} left',
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -988,7 +988,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           }),
                           const SizedBox(width: 4),
                           Text(
-                            '${event.spots} spots',
+                            '${event.spotsLeft} spots',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

@@ -132,13 +132,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       }
 
       final maxSpots = int.tryParse(_spotsController.text) ?? 10;
-      final price = _priceController.text.trim().isEmpty ? 'Free' : _priceController.text.trim();
+      final priceInput = _priceController.text.trim();
+      String price = 'Free';
+      if (priceInput.isNotEmpty && priceInput.toLowerCase() != 'free') {
+        final sanitizedPrice = priceInput.replaceAll('৳', '').trim();
+        if (!sanitizedPrice.toLowerCase().contains('taka')) {
+          price = '$sanitizedPrice Taka';
+        } else {
+          price = sanitizedPrice;
+        }
+      }
 
       final event = TrekEvent(
         id: '', // Firestore generates this
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        date: formattedDate,
         dateTime: dateTime,
         location: _locationController.text.trim(),
         price: price,
@@ -164,7 +172,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         _FakeDocSnapshot({
           'title': event.title,
           'description': event.description,
-          'date': event.date,
           'dateTime': Timestamp.fromDate(event.dateTime),
           'location': event.location,
           'price': event.price,
@@ -381,7 +388,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           _buildLabel('PRICE'),
                           _buildTextField(
                             controller: _priceController,
-                            hint: 'e.g. ৳50 or Free',
+                            hint: 'e.g. 50 or Free',
                           ),
                         ],
                       ),

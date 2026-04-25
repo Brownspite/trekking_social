@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class TrekEvent {
   final String id;
   final String title;
   final String description;
-  final String date;
   final DateTime dateTime;
   final String location;
   final String price;
@@ -27,7 +27,6 @@ class TrekEvent {
     required this.id,
     required this.title,
     required this.description,
-    required this.date,
     required this.dateTime,
     required this.location,
     required this.price,
@@ -46,9 +45,16 @@ class TrekEvent {
     this.attendees = const [],
   });
 
-  double get spotsPercentage => spots / maxSpots;
-  bool get isAlmostFull => spotsPercentage <= 0.2;
+  double get spotsPercentage => maxSpots > 0 ? spots / maxSpots : 0.0;
+  int get spotsLeft => maxSpots - spots;
+  bool get isAlmostFull => maxSpots > 0 && (spotsLeft / maxSpots <= 0.25);
   bool get isFree => price == 'Free';
+
+  String get date {
+    final dateFormat = DateFormat('EEE d MMM');
+    final timeFormat = DateFormat('HH:mm');
+    return '${dateFormat.format(dateTime)} · ${timeFormat.format(dateTime)}';
+  }
 
   static const Map<String, IconData> _iconMap = {
     'terrain': Icons.terrain_rounded,
@@ -90,7 +96,6 @@ class TrekEvent {
       id: doc.id,
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
-      date: data['date'] as String? ?? '',
       dateTime: (data['dateTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       location: data['location'] as String? ?? '',
       price: data['price'] as String? ?? 'Free',
@@ -124,7 +129,6 @@ class TrekEvent {
     return {
       'title': title,
       'description': description,
-      'date': date,
       'dateTime': Timestamp.fromDate(dateTime),
       'location': location,
       'price': price,
@@ -152,10 +156,9 @@ class TrekEvent {
             'We\'ll traverse alpine meadows, cross glacial streams, and enjoy '
             'panoramic views of the second-highest peak in the Alps. Suitable '
             'for experienced hikers with good fitness levels.',
-        date: 'Sat 12 Apr · 07:00',
         dateTime: DateTime(2026, 4, 12, 7, 0),
         location: 'Valle d\'Aosta',
-        price: '৳45',
+        price: '45 Taka',
         spots: 8,
         maxSpots: 30,
         tag: 'Trekking',
@@ -177,10 +180,9 @@ class TrekEvent {
             'community dinner features a 4-course Italian menu with locally '
             'sourced ingredients. Meet fellow members, share stories from '
             'recent treks, and plan future adventures together.',
-        date: 'Fri 18 Apr · 20:00',
         dateTime: DateTime(2026, 4, 18, 20, 0),
         location: 'Milano Centro',
-        price: '৳30',
+        price: '30 Taka',
         spots: 12,
         maxSpots: 25,
         tag: 'Social',
@@ -198,10 +200,9 @@ class TrekEvent {
             'Start your day with an unforgettable sunrise hike along the shores '
             'of Lake Como. This beginner-friendly hike offers stunning views '
             'of the lake and surrounding mountains as the sun rises over the Alps.',
-        date: 'Sat 5 Apr · 05:30',
         dateTime: DateTime(2026, 4, 5, 5, 30),
         location: 'Lago di Como',
-        price: '৳20',
+        price: '20 Taka',
         spots: 5,
         maxSpots: 15,
         tag: 'Trekking',
@@ -223,7 +224,6 @@ class TrekEvent {
             'some snacks, and your best energy. We\'ll have group activities, '
             'plan the summer trekking calendar, and welcome new members to '
             'the community.',
-        date: 'Sun 20 Apr · 16:00',
         dateTime: DateTime(2026, 4, 20, 16, 0),
         location: 'Parco Sempione, Milano',
         price: 'Free',
@@ -245,10 +245,9 @@ class TrekEvent {
             'features a challenging ridge walk with via ferrata sections, '
             'followed by an overnight stay in a mountain refuge. Day two '
             'descends through lush valleys back to the starting point.',
-        date: 'Sat 26 Apr · 06:00',
         dateTime: DateTime(2026, 4, 26, 6, 0),
         location: 'Cortina d\'Ampezzo',
-        price: '৳120',
+        price: '120 Taka',
         spots: 3,
         maxSpots: 12,
         tag: 'Trekking',
@@ -270,10 +269,9 @@ class TrekEvent {
             'artisanal cheeses from across the region. Our sommelier will '
             'guide you through each pairing while sharing the stories behind '
             'the vineyards and dairies.',
-        date: 'Thu 24 Apr · 19:30',
         dateTime: DateTime(2026, 4, 24, 19, 30),
         location: 'Navigli District, Milano',
-        price: '৳35',
+        price: '35 Taka',
         spots: 18,
         maxSpots: 20,
         tag: 'Social',
