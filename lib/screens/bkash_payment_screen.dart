@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BkashPaymentScreen extends StatefulWidget {
   final String amount;
@@ -100,6 +102,22 @@ class _BkashPaymentScreenState extends State<BkashPaymentScreen>
 
     if (mounted) {
       _transactionId = _generateTransactionId();
+
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        await FirebaseFirestore.instance.collection('payments').add({
+          'userId': user?.uid ?? 'anonymous',
+          'userEmail': user?.email ?? '',
+          'eventName': widget.eventName,
+          'amount': widget.amount,
+          'bkashNumber': _phoneController.text.trim(),
+          'transactionId': _transactionId,
+          'method': 'bKash',
+          'status': 'completed',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } catch (_) {}
+
       setState(() {
         _isProcessing = false;
         _paymentSuccess = true;
