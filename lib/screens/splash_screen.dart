@@ -97,14 +97,6 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'By continuing you agree to our Terms',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF2E2E2E),
-                ),
-              ),
               const SizedBox(height: 32),
             ],
           ),
