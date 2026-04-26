@@ -1,11 +1,11 @@
 {
-    "name": "trekking_social",
-    "short_name": "trekking_social",
+    "name": "TREK",
+    "short_name": "TREK",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0A0A0A",
+    "theme_color": "#D4F53C",
+    "description": "TREK - Trekking & Social Events Community",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

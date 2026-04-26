@@ -15,36 +15,12 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4F53C),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Center(
-                  child: Text(
-                    'C',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF0A0A0A),
-                    ),
-                  ),
-                ),
+              Image.asset(
+                'assets/images/trek_logo.png',
+                height: 64,
+                fit: BoxFit.contain,
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'Community\nHub',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  height: 1.15,
-                ),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               const Text(
                 'Trekking & Social Events',
                 style: TextStyle(
