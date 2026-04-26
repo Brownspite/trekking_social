@@ -119,7 +119,6 @@ class _InboxScreenState extends State<InboxScreen> {
                   if (!notification.isRead) {
                     _notificationService.markAsRead(notification.id);
                   }
-                  // Optionally, navigate to event details if notification.eventId is not null
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
