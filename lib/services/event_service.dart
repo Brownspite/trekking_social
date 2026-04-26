@@ -94,7 +94,6 @@ class EventService {
           fromUserId: userId,
         );
       } catch (e) {
-        // Silently ignore notification failure
       }
     }
   }
