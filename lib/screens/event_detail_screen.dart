@@ -27,7 +27,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   int _spotsTaken = 0;
 
   static const List<Map<String, dynamic>> _avatarStyles = [
-    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null}, // default
+    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null},
     {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
     {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
     {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},

@@ -122,7 +122,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       final user = FirebaseAuth.instance.currentUser;
       final organizerName = user?.displayName ?? 'Trekking Social Member';
 
-      // Combine date and time
       final dateTime = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
@@ -131,12 +130,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         _selectedTime!.minute,
       );
 
-      // Format date string (e.g., "Sat 12 Apr · 07:00")
       final dateStr = DateFormat('EEE d MMM').format(dateTime);
       final timeStr = DateFormat('HH:mm').format(dateTime);
       final formattedDate = '$dateStr · $timeStr';
 
-      // Determine UI defaults based on category
       String iconKey = 'terrain';
       String gradientKey = 'green_forest';
       
@@ -170,26 +167,20 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         dateTime: dateTime,
         location: _locationController.text.trim(),
         price: price,
-        spots: 0, // Starts at 0 joined
+        spots: 0,
         maxSpots: maxSpots,
         tag: _selectedCategory,
-        tagColor: const Color(0xFFD4F53C), // Model ignores this on toFirestore
+        tagColor: const Color(0xFFD4F53C),
         tagBg: const Color(0xFF1E1E1E),
-        gradientColors: [], // Model uses gradientKey in toFirestore
-        icon: Icons.event, // Model uses iconKey
+        gradientColors: [],
+        icon: Icons.event,
         organizer: isEditing ? widget.existingEvent!.organizer : organizerName,
         creatorId: isEditing ? widget.existingEvent!.creatorId : user!.uid,
         difficulty: _selectedCategory == 'Trekking' ? 'Moderate' : null,
       );
 
-      // We need to slightly modify toFirestore approach or pass the keys.
-      // Actually, since toFirestore uses the actual IconData and Color list to find keys, 
-      // we must pass the matching static ones from TrekEvent to ensure proper translation.
-      // Wait, we can just create a map payload directly, or use the real colors/icons.
-      // Let's instantiate it properly.
       
       final realEvent = TrekEvent.fromFirestore(
-        // We simulate a document snapshot map to use the factory and get the right UI mappings
         _FakeDocSnapshot({
           'title': event.title,
           'description': event.description,
