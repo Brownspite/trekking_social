@@ -157,20 +157,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
+                          width: 44,
                           height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF161616),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: const Color(0xFF1F1F1F),
-                              width: 1,
-                            ),
+                            color: const Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Image.asset(
-                            'assets/images/trek_logo.png',
-                            height: 28,
-                            fit: BoxFit.contain,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/images/trek_logo.png',
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         Row(
