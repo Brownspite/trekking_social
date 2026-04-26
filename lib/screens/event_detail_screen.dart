@@ -5,6 +5,7 @@ import '../models/event_model.dart';
 import '../services/event_service.dart';
 import 'public_profile_screen.dart';
 import 'create_event_screen.dart';
+import 'bkash_payment_screen.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final TrekEvent event;
@@ -79,6 +80,21 @@ class _EventDetailScreenState extends State<EventDetailScreen>
     if (user == null || _currentUserData == null) return;
     
     final newJoinState = !_isJoined;
+    
+    if (newJoinState && !widget.event.isFree) {
+      final amount = widget.event.price.replaceAll(RegExp(r'[^0-9.]'), '');
+      final paymentResult = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BkashPaymentScreen(
+            amount: amount,
+            eventName: widget.event.title,
+          ),
+        ),
+      );
+      
+      if (paymentResult != true) return;
+    }
     
     final attendeeMap = {
       'uid': user.uid,
