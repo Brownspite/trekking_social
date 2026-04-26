@@ -451,9 +451,9 @@ class _BkashPaymentScreenState extends State<BkashPaymentScreen>
                 letterSpacing: 12,
               ),
               textAlign: TextAlign.center,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: '• • • •',
-                hintStyle: TextStyle(color: Colors.white15, fontSize: 24, letterSpacing: 12),
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.15), fontSize: 24, letterSpacing: 12),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               ),
