@@ -135,21 +135,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarGrid(DateTime now) {
-    final daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final daysOfWeek = ['S', 'S', 'M', 'T', 'W', 'T', 'F'];
     final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
-    final startWeekday = firstDayOfMonth.weekday;
+    final startWeekday = (firstDayOfMonth.weekday + 1) % 7 + 1;
 
     return Column(
       children: [
         Row(
-          children: daysOfWeek.map((day) => Expanded(
+          children: daysOfWeek.asMap().entries.map((entry) => Expanded(
             child: Center(
               child: Text(
-                day,
-                style: const TextStyle(
+                entry.value,
+                style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF444444),
+                  color: entry.key == 6 ? const Color(0xFFFF6B6B) : const Color(0xFF444444),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -223,7 +223,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                                 color: isSelected
                                     ? const Color(0xFFD4F53C)
-                                    : const Color(0xFF666666),
+                                    : (weekday == 6 ? const Color(0xFFFF6B6B) : const Color(0xFF666666)),
                               ),
                             ),
                           if (hasEvent && !isToday)
