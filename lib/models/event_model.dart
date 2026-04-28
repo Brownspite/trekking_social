@@ -56,9 +56,22 @@ class TrekEvent {
   bool get isFree => price == 'Free';
 
   String get date {
-    final dateFormat = DateFormat('EEE d MMM');
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final eventDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
     final timeFormat = DateFormat('HH:mm');
-    return '${dateFormat.format(dateTime)} · ${timeFormat.format(dateTime)}';
+    final timeStr = timeFormat.format(dateTime);
+
+    if (eventDate == today) {
+      return 'Today · $timeStr';
+    } else if (eventDate == tomorrow) {
+      return 'Tomorrow · $timeStr';
+    } else {
+      final dateFormat = DateFormat('EEE d MMM');
+      return '${dateFormat.format(dateTime)} · $timeStr';
+    }
   }
 
   static const Map<String, IconData> _iconMap = {
