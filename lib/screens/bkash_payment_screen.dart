@@ -75,8 +75,11 @@ class _BkashPaymentScreenState extends State<BkashPaymentScreen>
 
   void _proceedToPin() {
     final phone = _phoneController.text.trim();
-    if (phone.length < 11) {
-      setState(() => _errorMessage = 'Enter a valid 11-digit bKash number');
+    bool isValid = (phone.startsWith('01') && phone.length == 11) ||
+                   (phone.startsWith('1') && phone.length == 10);
+
+    if (!isValid) {
+      setState(() => _errorMessage = 'Enter a valid bKash number');
       return;
     }
     setState(() {
