@@ -117,13 +117,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  List<TrekEvent> get _eventsThisMonth {
+    final now = DateTime.now();
+    return _events.where((e) =>
+      e.dateTime.month == now.month && e.dateTime.year == now.year
+    ).toList();
+  }
+
   List<int> get _eventDays {
-    return _events.map((e) => e.dateTime.day).toList();
+    return _eventsThisMonth.map((e) => e.dateTime.day).toList();
   }
 
   List<TrekEvent> get _eventsForSelectedDay {
-    if (_selectedDay == null) return _events;
-    return _events.where((e) => e.dateTime.day == _selectedDay).toList();
+    if (_selectedDay == null) return _eventsThisMonth;
+    return _eventsThisMonth.where((e) => e.dateTime.day == _selectedDay).toList();
   }
 
   String _getMonthYear(DateTime date) {
