@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
+import '../utils/avatar_styles.dart';
 import 'public_profile_screen.dart';
 import 'create_event_screen.dart';
 import 'bkash_payment_screen.dart';
@@ -27,14 +28,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   List<Map<String, dynamic>> _attendees = [];
   int _spotsTaken = 0;
 
-  static const List<Map<String, dynamic>> _avatarStyles = [
-    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null},
-    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
-    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
-    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
-    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
-    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
-  ];
+  static List<Map<String, dynamic>> get _avatarStyles => AvatarStyles.styles;
 
   @override
   void initState() {
@@ -493,7 +487,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                                         border: Border.all(color: const Color(0xFF222222), width: 1),
                                       ),
                                       child: _avatarStyles[avatarId]['icon'] == null
-                                        ? Center(child: Text(attendee['name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF0A0A0A), fontSize: 16)))
+                                        ? Center(child: Text(_avatarStyles[avatarId]['label'] ?? attendee['name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF0A0A0A), fontSize: 16)))
                                         : Icon(_avatarStyles[avatarId]['icon'], color: const Color(0xFF0A0A0A), size: 20),
                                     ),
                                   );

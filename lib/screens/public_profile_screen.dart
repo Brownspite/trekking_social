@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/avatar_styles.dart';
 
 class PublicProfileScreen extends StatefulWidget {
   final String uid;
@@ -14,14 +15,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   Map<String, dynamic>? _userData;
   bool _isLoading = true;
 
-  static const List<Map<String, dynamic>> avatarStyles = [
-    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null},
-    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
-    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
-    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
-    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
-    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
-  ];
+  static List<Map<String, dynamic>> get avatarStyles => AvatarStyles.styles;
 
   @override
   void initState() {
@@ -107,12 +101,8 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
               child: Center(
                 child: avatarStyles[avatarId]['icon'] == null
                     ? Text(
-                        _getInitials(fullName),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0A0A0A),
-                        ),
+                        avatarStyles[avatarId]['label'] ?? '',
+                        style: const TextStyle(fontSize: 40),
                       )
                     : Icon(
                         avatarStyles[avatarId]['icon'],

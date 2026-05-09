@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/auth_service.dart';
+import '../utils/avatar_styles.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -23,14 +24,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   int _originalAvatarId = 0;
   int _selectedAvatarId = 0;
 
-  static const List<Map<String, dynamic>> avatarStyles = [
-    {'colors': [Color(0xFFD4F53C), Color(0xFF8BC34A)], 'icon': null},
-    {'colors': [Color(0xFFFF7E5F), Color(0xFFFEB47B)], 'icon': Icons.local_fire_department_rounded},
-    {'colors': [Color(0xFF00C9FF), Color(0xFF92FE9D)], 'icon': Icons.water_drop_rounded},
-    {'colors': [Color(0xFF6A11CB), Color(0xFF2575FC)], 'icon': Icons.star_rounded},
-    {'colors': [Color(0xFFF12711), Color(0xFFF5AF19)], 'icon': Icons.bolt_rounded},
-    {'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'icon': Icons.auto_awesome_rounded},
-  ];
+  static List<Map<String, dynamic>> get avatarStyles => AvatarStyles.styles;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -233,57 +227,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                           ),
                           const SizedBox(height: 24),
                           
-                          SizedBox(
-                            height: 60,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: avatarStyles.length,
-                              itemBuilder: (context, index) {
-                                final style = avatarStyles[index];
-                                final isSelected = _selectedAvatarId == index;
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedAvatarId = index;
-                                    });
-                                    _checkChanges();
-                                  },
-                                  child: Container(
-                                    width: 50,
-                                    height: 50,
-                                    margin: const EdgeInsets.only(right: 12),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: style['colors'],
-                                      ),
-                                      border: isSelected
-                                          ? Border.all(color: Colors.white, width: 3)
-                                          : Border.all(color: Colors.transparent, width: 3),
-                                    ),
-                                    child: Center(
-                                      child: style['icon'] == null
-                                          ? Text(
-                                              initials,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w800,
-                                                color: Color(0xFF0A0A0A),
-                                              ),
-                                            )
-                                          : Icon(
-                                              style['icon'],
-                                              size: 24,
-                                              color: const Color(0xFF0A0A0A),
-                                            ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                          _buildAvatarSection('CUTE ANIMALS', 0, 6),
+                          const SizedBox(height: 16),
+                          _buildAvatarSection('ADVENTURER', 6, 12),
                           const SizedBox(height: 28),
 
                           Container(
@@ -540,6 +486,78 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAvatarSection(String title, int start, int end) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 10),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: Colors.white.withOpacity(0.3),
+            ),
+          ),
+        ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(end - start, (i) {
+            final index = start + i;
+            final style = avatarStyles[index];
+            final isSelected = _selectedAvatarId == index;
+            return GestureDetector(
+              onTap: () {
+                setState(() => _selectedAvatarId = index);
+                _checkChanges();
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: style['colors'],
+                  ),
+                  border: isSelected
+                      ? Border.all(color: const Color(0xFFD4F53C), width: 3)
+                      : Border.all(color: const Color(0xFF2A2A2A), width: 2),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: (style['colors'] as List<Color>)[0].withOpacity(0.4),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: style['icon'] == null
+                      ? Text(
+                          style['label'] ?? '',
+                          style: const TextStyle(fontSize: 24),
+                        )
+                      : Icon(
+                          style['icon'],
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 
