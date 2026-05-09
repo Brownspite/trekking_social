@@ -18,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _totalEvents = 0;
   int _trekCount = 0;
   int _socialCount = 0;
+  int _meetupCount = 0;
   int _avatarId = 0;
   bool _isLoading = true;
 
@@ -63,6 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     int trekCount = 0;
     int socialCount = 0;
+    int meetupCount = 0;
 
     if (eventsJoined.isNotEmpty) {
       final eventsSnap = await FirebaseFirestore.instance
@@ -72,7 +74,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       for (final doc in eventsSnap.docs) {
         final tag = (doc.data()['tag'] as String?) ?? '';
         if (tag == 'Trekking') trekCount++;
-        else socialCount++;
+        else if (tag == 'Social') socialCount++;
+        else if (tag == 'Meetup') meetupCount++;
       }
     }
 
@@ -83,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _totalEvents = eventsJoined.length;
         _trekCount = trekCount;
         _socialCount = socialCount;
+        _meetupCount = meetupCount;
         _avatarId = avatarId;
         _isLoading = false;
       });
@@ -212,8 +216,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildStatBox('${_isLoading ? '-' : _totalEvents}', 'Events', Icons.event_rounded),
                   const SizedBox(width: 10),
                   _buildStatBox('${_isLoading ? '-' : _trekCount}', 'Treks', Icons.terrain_rounded),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   _buildStatBox('${_isLoading ? '-' : _socialCount}', 'Social', Icons.people_rounded),
+                  const SizedBox(width: 8),
+                  _buildStatBox('${_isLoading ? '-' : _meetupCount}', 'Meetups', Icons.groups_rounded),
                 ],
               ),
             ),

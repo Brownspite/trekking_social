@@ -65,11 +65,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  List<String> get _categories {
-    final tags = _events.map((e) => e.tag).toSet().toList();
-    tags.sort();
-    return ['All', ...tags];
-  }
+  final List<String> _categories = ['All', 'Trekking', 'Social', 'Meetup'];
 
   List<TrekEvent> get _filteredEvents {
     var events = _events;
