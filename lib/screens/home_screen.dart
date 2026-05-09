@@ -9,7 +9,9 @@ import '../models/notification_model.dart';
 import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onProfileTap;
+
+  const HomeScreen({super.key, this.onProfileTap});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -209,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             const SizedBox(width: 12),
                             GestureDetector(
                               onTap: () {
+                                widget.onProfileTap?.call();
                               },
                               child: Container(
                                 width: 44,
