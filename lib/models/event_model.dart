@@ -61,7 +61,7 @@ class TrekEvent {
     final tomorrow = today.add(const Duration(days: 1));
     final eventDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
-    final timeFormat = DateFormat('HH:mm');
+    final timeFormat = DateFormat('hh:mm a');
     final timeStr = timeFormat.format(dateTime);
 
     if (eventDate == today) {

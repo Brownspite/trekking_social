@@ -131,7 +131,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       );
 
       final dateStr = DateFormat('EEE d MMM').format(dateTime);
-      final timeStr = DateFormat('HH:mm').format(dateTime);
+      final timeStr = DateFormat('hh:mm a').format(dateTime);
       final formattedDate = '$dateStr · $timeStr';
 
       String iconKey = 'terrain';
