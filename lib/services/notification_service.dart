@@ -33,7 +33,8 @@ class NotificationService {
     String? eventId,
     String? fromUserId,
   }) async {
-    if (targetUserId == _auth.currentUser?.uid) return;
+    // Don't notify if the sender is the same as the receiver (e.g. joining own event)
+    if (fromUserId != null && fromUserId == targetUserId) return;
 
     final notification = AppNotification(
       id: '',

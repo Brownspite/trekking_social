@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import 'notification_service.dart';
@@ -94,6 +95,7 @@ class EventService {
           fromUserId: userId,
         );
       } catch (e) {
+        debugPrint('Failed to send notification: $e');
       }
     }
   }
