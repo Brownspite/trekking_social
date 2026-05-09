@@ -11,6 +11,10 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
 
+  Stream<DocumentSnapshot<Map<String, dynamic>>> streamUserProfile(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots();
+  }
+
   Future<UserCredential> registerWithEmailAndPassword({
     required String fullName,
     required String email,

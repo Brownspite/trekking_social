@@ -7,6 +7,9 @@ import 'create_event_screen.dart';
 import 'inbox_screen.dart';
 import '../models/notification_model.dart';
 import '../services/notification_service.dart';
+import '../services/auth_service.dart';
+import '../utils/avatar_styles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onProfileTap;
@@ -208,35 +211,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 ),
                               ],
                             ),
-                            const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () {
-                                widget.onProfileTap?.call();
-                              },
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFFD4F53C), Color(0xFF8BC34A)],
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    (user?.displayName?.isNotEmpty == true
-                                        ? user!.displayName![0]
-                                        : 'E')
-                                      .toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF0A0A0A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                             const SizedBox(width: 12),
+                             StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                               stream: AuthService().streamUserProfile(user?.uid ?? ''),
+                               builder: (context, snapshot) {
+                                 final data = snapshot.data?.data();
+                                 final avatarId = (data?['avatarId'] as int?) ?? 0;
+                                 final style = AvatarStyles.styles[avatarId];
+                                 
+                                 return GestureDetector(
+                                   onTap: () {
+                                     widget.onProfileTap?.call();
+                                   },
+                                   child: Container(
+                                     width: 44,
+                                     height: 44,
+                                     decoration: BoxDecoration(
+                                       borderRadius: BorderRadius.circular(14),
+                                       gradient: LinearGradient(
+                                         begin: Alignment.topLeft,
+                                         end: Alignment.bottomRight,
+                                         colors: style['colors'],
+                                       ),
+                                     ),
+                                     child: Center(
+                                       child: style['icon'] == null
+                                           ? Text(
+                                               style['label'] ?? '',
+                                               style: const TextStyle(fontSize: 22),
+                                             )
+                                           : Icon(
+                                               style['icon'],
+                                               size: 24,
+                                               color: Colors.white,
+                                             ),
+                                     ),
+                                   ),
+                                 );
+                               },
+                             ),
                           ],
                         ),
                       ],
