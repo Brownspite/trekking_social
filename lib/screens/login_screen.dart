@@ -26,8 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  bool _isGoogleLoading = false;
-
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -55,32 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isGoogleLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await _authService.signInWithGoogle();
-      if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e is String ? e : e.toString();
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isGoogleLoading = false;
         });
       }
     }
@@ -333,45 +305,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                             ),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(child: Container(height: 1, color: const Color(0xFF1E1E1E))),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('or', style: TextStyle(fontSize: 12, color: Color(0xFF2E2E2E))),
-                    ),
-                    Expanded(child: Container(height: 1, color: const Color(0xFF1E1E1E))),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton(
-                    onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF555555),
-                      side: const BorderSide(color: Color(0xFF252525)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: _isGoogleLoading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Color(0xFF555555),
-                            ),
-                          )
-                        : const Text(
-                            'Continue with Google',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                   ),
                 ),
