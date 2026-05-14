@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -76,62 +76,6 @@ class AuthService {
     }
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      UserCredential result;
-
-      if (kIsWeb) {
-        final googleProvider = GoogleAuthProvider();
-        result = await _auth.signInWithPopup(googleProvider);
-      } else {
-        final googleSignIn = GoogleSignIn(
-          clientId: '82918405342-l4t5aeiscunco0vgnctll3i4t3th8sei.apps.googleusercontent.com',
-        );
-
-        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-        if (googleUser == null) {
-          throw 'Google sign-in was cancelled.';
-        }
-
-        final googleAuth = await googleUser.authentication;
-
-        final credential = GoogleAuthProvider.credential(
-          idToken: googleAuth.idToken,
-          accessToken: googleAuth.accessToken,
-        );
-
-        result = await _auth.signInWithCredential(credential);
-      }
-
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(result.user!.uid)
-          .get();
-
-      if (!userDoc.exists) {
-        await _firestore.collection('users').doc(result.user!.uid).set({
-          'fullName': result.user?.displayName ?? '',
-          'email': result.user?.email ?? '',
-          'bio': '',
-          'avatarId': 0,
-          'pushEnabled': true,
-          'emailEnabled': true,
-          'createdAt': FieldValue.serverTimestamp(),
-          'eventsJoined': [],
-        });
-      }
-
-      return result;
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Google Sign-In Auth Error: ${e.code} - ${e.message}');
-      throw _getErrorMessage(e.code, e.message);
-    } catch (e) {
-      debugPrint('Google Sign-In Error: $e');
-      if (e is String) rethrow;
-      throw 'Google sign-in failed. Please try again.';
-    }
-  }
 
   Future<void> sendPasswordReset(String email) async {
     try {
@@ -198,9 +142,6 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    try {
-      await GoogleSignIn().disconnect();
-    } catch (_) {}
     await _auth.signOut();
   }
 
