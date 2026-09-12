@@ -165,8 +165,11 @@ class AuthService {
         return 'Too many failed attempts. Please try again later.';
       case 'network-request-failed':
         return 'Network error. Please check your internet connection.';
+      case 'permission-denied':
+      case 'insufficient-permissions':
+        return 'Access denied: Firestore security rules restrict reading/writing data. Please update rules in Firebase Console.';
       case 'operation-not-allowed':
-        return 'Email/password sign-in is not enabled.';
+        return 'Email/password sign-in is not enabled in Firebase Console.';
       default:
         return fallback ?? 'An error occurred. Please try again.';
     }

@@ -8,10 +8,14 @@ import 'screens/app_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await EventService().seedEvents();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    EventService().seedEvents().catchError((e) => debugPrint("Event seed info: $e"));
+  } catch (e) {
+    debugPrint("Firebase init: $e");
+  }
   runApp(const MyApp());
 }
 
